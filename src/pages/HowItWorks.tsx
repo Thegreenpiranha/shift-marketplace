@@ -16,10 +16,7 @@ export default function HowItWorks() {
       <header className="border-b bg-background sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <Link to="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center mr-2">
-                <div className="text-lg font-bold text-primary-foreground">S</div>
-              </div>
+            <Link to="/">
               <h1 className="text-xl font-bold text-primary">Shift</h1>
             </Link>
             <nav className="flex items-center gap-4">

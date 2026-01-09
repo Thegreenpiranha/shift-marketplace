@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useListings } from '@/hooks/useListings';
 import { formatPrice } from '@/types/marketplace';
-import { LoginArea } from '@/components/auth/LoginArea';
+import { EnhancedLoginArea } from '@/components/auth/EnhancedLoginArea';
 
 export default function MyListings() {
   const { user } = useCurrentUser();
@@ -36,12 +36,8 @@ export default function MyListings() {
           </div>
         </header>
 
-        <div className="container mx-auto px-4 py-16 max-w-md text-center">
-          <h2 className="text-2xl font-bold mb-4">Login Required</h2>
-          <p className="text-muted-foreground mb-6">
-            You need to be logged in to view your listings
-          </p>
-          <LoginArea className="flex justify-center" />
+        <div className="container mx-auto px-4 py-16 flex justify-center">
+          <EnhancedLoginArea />
         </div>
       </div>
     );
@@ -53,10 +49,7 @@ export default function MyListings() {
       <header className="border-b bg-background sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <Link to="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center mr-2">
-                <div className="text-lg font-bold text-primary-foreground">S</div>
-              </div>
+            <Link to="/">
               <h1 className="text-xl font-bold text-primary">Shift</h1>
             </Link>
             <nav className="flex items-center gap-4">

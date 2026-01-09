@@ -19,7 +19,7 @@ import { useNostrPublish } from '@/hooks/useNostrPublish';
 import { useUploadFile } from '@/hooks/useUploadFile';
 import { useToast } from '@/hooks/useToast';
 import { CATEGORIES, convertGBPToSats } from '@/types/marketplace';
-import { LoginArea } from '@/components/auth/LoginArea';
+import { EnhancedLoginArea } from '@/components/auth/EnhancedLoginArea';
 
 export default function CreateListing() {
   const { user } = useCurrentUser();
@@ -172,10 +172,7 @@ export default function CreateListing() {
       <header className="border-b bg-background sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <Link to="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center mr-2">
-                <div className="text-lg font-bold text-primary-foreground">S</div>
-              </div>
+            <Link to="/">
               <h1 className="text-xl font-bold text-primary">Shift</h1>
             </Link>
             <nav className="flex items-center gap-4">
@@ -206,15 +203,9 @@ export default function CreateListing() {
         </div>
 
         {!user ? (
-          <Card>
-            <CardHeader>
-              <CardTitle>Login Required</CardTitle>
-              <CardDescription>You need to be logged in to create a listing</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <LoginArea className="flex justify-center" />
-            </CardContent>
-          </Card>
+          <div className="flex justify-center">
+            <EnhancedLoginArea />
+          </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Basic Information */}
