@@ -1,6 +1,6 @@
-# TrustMarket UK
+# Shift
 
-A peer-to-peer marketplace for buying and selling goods and services in the UK, powered by Bitcoin Lightning Network and built on Nostr protocol.
+A modern peer-to-peer marketplace for buying and selling locally, powered by Bitcoin Lightning Network and built on Nostr protocol.
 
 ## Features
 
@@ -43,7 +43,7 @@ A peer-to-peer marketplace for buying and selling goods and services in the UK, 
 
 ## Nostr Protocol
 
-TrustMarket uses the following Nostr NIPs:
+Shift uses the following Nostr NIPs:
 
 - **NIP-99**: Classified Listings for marketplace items
 - **NIP-32**: Labeling for seller reputation/reviews

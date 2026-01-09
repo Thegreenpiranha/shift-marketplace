@@ -1,4 +1,4 @@
-# TrustMarket UK - Feature Overview
+# Shift - Feature Overview
 
 ## 🎯 Core Marketplace Features
 

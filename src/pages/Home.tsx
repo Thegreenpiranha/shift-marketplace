@@ -12,10 +12,10 @@ import { CATEGORIES, formatPrice } from '@/types/marketplace';
 
 export default function Home() {
   useSeoMeta({
-    title: 'TrustMarket UK - Buy & Sell with Bitcoin Lightning',
-    description: 'The UK\'s most trusted peer-to-peer marketplace with escrow protection. Buy and sell electronics, clothing, vehicles, and more using Bitcoin Lightning Network.',
-    ogTitle: 'TrustMarket UK - Trusted P2P Marketplace',
-    ogDescription: 'Buy & sell safely with escrow protection and Lightning payments',
+    title: 'Shift - Buy and sell locally. Securely.',
+    description: 'A modern peer-to-peer marketplace with escrow protection. Buy and sell electronics, clothing, vehicles, and more using Bitcoin Lightning Network.',
+    ogTitle: 'Shift - Local P2P Marketplace',
+    ogDescription: 'Buy and sell locally. Securely.',
   });
 
   const navigate = useNavigate();
@@ -35,15 +35,14 @@ export default function Home() {
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+            <Link to="/" className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
-                <ShieldCheck className="h-6 w-6 text-primary-foreground" />
+                <div className="text-xl font-bold text-primary-foreground">S</div>
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-primary">TrustMarket</h1>
-                <p className="text-xs text-muted-foreground">UK's Trusted Marketplace</p>
+                <h1 className="text-2xl font-bold text-primary">Shift</h1>
               </div>
-            </div>
+            </Link>
             <nav className="flex items-center gap-4">
               <Link to="/my-listings">
                 <Button variant="ghost">My Listings</Button>
@@ -64,10 +63,10 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center space-y-6">
             <h2 className="text-4xl md:text-5xl font-bold text-foreground">
-              Buy & Sell with Confidence
+              Buy and sell locally. Securely.
             </h2>
             <p className="text-lg text-muted-foreground">
-              The UK's most trusted peer-to-peer marketplace with escrow protection
+              A modern peer-to-peer marketplace with escrow protection
             </p>
 
             {/* Search Bar */}
@@ -207,7 +206,7 @@ export default function Home() {
 
       {/* How It Works */}
       <section className="py-16 container mx-auto px-4">
-        <h3 className="text-3xl font-bold text-center mb-12">How TrustMarket Works</h3>
+        <h3 className="text-3xl font-bold text-center mb-12">How Shift Works</h3>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="text-center space-y-4">
             <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
@@ -253,9 +252,9 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
-              <h4 className="font-semibold mb-4">About TrustMarket</h4>
+              <h4 className="font-semibold mb-4">About Shift</h4>
               <p className="text-sm text-muted-foreground">
-                The UK's most trusted peer-to-peer marketplace, powered by Bitcoin Lightning for
+                A modern peer-to-peer marketplace, powered by Bitcoin Lightning for
                 secure, instant payments.
               </p>
             </div>
@@ -295,7 +294,7 @@ export default function Home() {
               >
                 Shakespeare
               </a>{' '}
-              · © 2025 TrustMarket UK
+              · © 2025 Shift
             </p>
           </div>
         </div>

@@ -6,8 +6,8 @@ import { ShieldCheck, Lock, MessageSquare, Zap, CheckCircle, ArrowRight } from '
 
 export default function HowItWorks() {
   useSeoMeta({
-    title: 'How It Works - TrustMarket UK',
-    description: 'Learn how to buy and sell safely on TrustMarket with escrow protection and Lightning Network payments.',
+    title: 'How It Works - Shift',
+    description: 'Learn how to buy and sell safely on Shift with escrow protection and Lightning Network payments.',
   });
 
   return (
@@ -17,7 +17,10 @@ export default function HowItWorks() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center gap-2">
-              <h1 className="text-xl font-bold text-primary">TrustMarket</h1>
+              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center mr-2">
+                <div className="text-lg font-bold text-primary-foreground">S</div>
+              </div>
+              <h1 className="text-xl font-bold text-primary">Shift</h1>
             </Link>
             <nav className="flex items-center gap-4">
               <Link to="/search">
@@ -33,7 +36,7 @@ export default function HowItWorks() {
 
       <div className="container mx-auto px-4 py-16 max-w-4xl">
         <div className="text-center mb-16">
-          <h1 className="text-4xl font-bold mb-4">How TrustMarket Works</h1>
+          <h1 className="text-4xl font-bold mb-4">How Shift Works</h1>
           <p className="text-xl text-muted-foreground">
             Safe, secure peer-to-peer trading with escrow protection
           </p>

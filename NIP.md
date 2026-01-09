@@ -1,12 +1,12 @@
-# TrustMarket UK - Custom Nostr Protocol Extensions
+# Shift - Custom Nostr Protocol Extensions
 
-This document defines custom Nostr event kinds used by TrustMarket UK for peer-to-peer marketplace functionality.
+This document defines custom Nostr event kinds used by Shift for peer-to-peer marketplace functionality.
 
 ## Event Kinds
 
 ### Kind 30402: Classified Listing (NIP-99)
 
-TrustMarket UK uses NIP-99 Classified Listings for all marketplace items. See [NIP-99](https://github.com/nostr-protocol/nips/blob/master/99.md) for full specification.
+Shift uses NIP-99 Classified Listings for all marketplace items. See [NIP-99](https://github.com/nostr-protocol/nips/blob/master/99.md) for full specification.
 
 **Required Tags:**
 - `d` - Unique identifier for the listing
@@ -32,8 +32,8 @@ Used for buyer feedback on sellers after a completed transaction. Uses NIP-32 la
   "kind": 1985,
   "content": "<review text>",
   "tags": [
-    ["L", "uk.trustmarket/reputation"],
-    ["l", "rating", "uk.trustmarket/reputation"],
+    ["L", "shift/reputation"],
+    ["l", "rating", "shift/reputation"],
     ["rating", "<1-5>"],
     ["p", "<seller_pubkey>"],
     ["e", "<listing_event_id>"],
@@ -43,7 +43,7 @@ Used for buyer feedback on sellers after a completed transaction. Uses NIP-32 la
 ```
 
 **Tags:**
-- `L` - Label namespace: "uk.trustmarket/reputation"
+- `L` - Label namespace: "shift/reputation"
 - `l` - Label type: "rating"
 - `rating` - Star rating from 1-5
 - `p` - Seller's pubkey being reviewed
