@@ -1,4 +1,4 @@
-import { LN } from '@getalby/sdk';
+import { webln } from '@getalby/sdk';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -22,11 +22,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: 'Invalid amount' });
     }
 
-    // Initialize NWC connection
-    const nwc = new LN(process.env.ALBY_NWC_URL!);
+    // Initialize NWC connection with WebLN provider
+    const nwc = new webln.NostrWebLNProvider({
+      nostrWalletConnectUrl: process.env.ALBY_NWC_URL!
+    });
+
+    await nwc.enable();
 
     // Create invoice
-    const invoice = await nwc.makeInvoice(amount, description || 'Shift Marketplace Payment');
+    const invoice = await nwc.makeInvoice({
+      amount,
+      defaultMemo: description || 'Shift Marketplace Payment',
+    });
 
     res.status(200).json({
       invoice: invoice.paymentRequest,
