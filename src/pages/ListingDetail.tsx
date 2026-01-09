@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, MapPin, Star, ShieldCheck, MessageCircle, Calendar } from 'lucide-react';
+import { ArrowLeft, MapPin, Star, ShieldCheck, MessageCircle, Calendar, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -11,9 +11,13 @@ import { useListing } from '@/hooks/useListings';
 import { useSellerReputation, useSellerReviews } from '@/hooks/useSellerReputation';
 import { useAuthor } from '@/hooks/useAuthor';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { formatPrice, formatSats } from '@/types/marketplace';
+import { formatPrice, formatSats, convertGBPToSats } from '@/types/marketplace';
 import { genUserName } from '@/lib/genUserName';
 import ReactMarkdown from 'react-markdown';
+import { useCreateInvoice, calculateTotalAmount, usePaymentByListing } from '@/hooks/useAlbyPayments';
+import { PaymentModal } from '@/components/PaymentModal';
+import { getSellerLightningAddress } from '@/components/LightningAddressSettings';
+import { useToast } from '@/hooks/useToast';
 
 export default function ListingDetail() {
   const { listingId } = useParams<{ listingId: string }>();
@@ -22,13 +26,69 @@ export default function ListingDetail() {
   const { data: reviews } = useSellerReviews(listing?.sellerPubkey, 5);
   const author = useAuthor(listing?.sellerPubkey);
   const { user } = useCurrentUser();
+  const { toast } = useToast();
   const [selectedImage, setSelectedImage] = useState(0);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+
+  const { mutate: createInvoice, isPending: isCreatingInvoice } = useCreateInvoice();
+  const { data: existingPayment } = usePaymentByListing(listingId);
 
   const sellerMetadata = author.data?.metadata;
   const sellerName = sellerMetadata?.name || genUserName(listing?.sellerPubkey || '');
   const sellerAvatar = sellerMetadata?.picture;
 
   const isOwnListing = user && listing && user.pubkey === listing.sellerPubkey;
+
+  const handlePayWithLightning = () => {
+    if (!user) {
+      toast({
+        title: 'Login Required',
+        description: 'Please log in to purchase this item',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!listing) return;
+
+    // Check if seller has Lightning address
+    const sellerLightningAddress = getSellerLightningAddress(listing.sellerPubkey);
+    if (!sellerLightningAddress) {
+      toast({
+        title: 'Seller Not Ready',
+        description: 'This seller has not set up their Lightning address yet',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Convert GBP price to sats
+    const itemPriceSats = listing.priceSats || convertGBPToSats(listing.price);
+    const totalAmount = calculateTotalAmount(itemPriceSats);
+
+    createInvoice(
+      {
+        listingId: listing.id,
+        itemPrice: itemPriceSats,
+        platformFee: Math.floor(itemPriceSats * 0.02),
+        totalAmount,
+        sellerPubkey: listing.sellerPubkey,
+        buyerPubkey: user.pubkey,
+      },
+      {
+        onSuccess: () => {
+          setShowPaymentModal(true);
+        },
+        onError: (error) => {
+          toast({
+            title: 'Failed to Create Invoice',
+            description: error.message,
+            variant: 'destructive',
+          });
+        },
+      }
+    );
+  };
 
   if (isLoading) {
     return (
@@ -265,11 +325,39 @@ export default function ListingDetail() {
                 <Separator />
 
                 {!isOwnListing && listing.status === 'active' && (
-                  <div className="space-y-2">
-                    <Button className="w-full" size="lg">
-                      <MessageCircle className="h-5 w-5 mr-2" />
-                      Contact Seller
-                    </Button>
+                  <div className="space-y-3">
+                    {existingPayment && existingPayment.status !== 'settled' ? (
+                      <div className="space-y-2">
+                        <Button
+                          className="w-full"
+                          size="lg"
+                          variant="outline"
+                          onClick={() => setShowPaymentModal(true)}
+                        >
+                          <Zap className="h-5 w-5 mr-2 text-yellow-500" />
+                          {existingPayment.status === 'paid' ? 'View Payment' : 'Continue Payment'}
+                        </Button>
+                        <p className="text-xs text-center text-muted-foreground">
+                          Payment status: {existingPayment.status}
+                        </p>
+                      </div>
+                    ) : (
+                      <>
+                        <Button
+                          className="w-full"
+                          size="lg"
+                          onClick={handlePayWithLightning}
+                          disabled={isCreatingInvoice}
+                        >
+                          <Zap className="h-5 w-5 mr-2" />
+                          {isCreatingInvoice ? 'Creating Invoice...' : 'Pay with Lightning'}
+                        </Button>
+                        <Button className="w-full" size="lg" variant="outline">
+                          <MessageCircle className="h-5 w-5 mr-2" />
+                          Contact Seller
+                        </Button>
+                      </>
+                    )}
                     <p className="text-xs text-center text-muted-foreground">
                       <ShieldCheck className="h-3 w-3 inline mr-1" />
                       Your payment will be protected by escrow
@@ -324,6 +412,16 @@ export default function ListingDetail() {
             </Button>
           </div>
         </div>
+
+        {/* Payment Modal */}
+        {existingPayment && (
+          <PaymentModal
+            open={showPaymentModal}
+            onClose={() => setShowPaymentModal(false)}
+            payment={existingPayment}
+            itemTitle={listing.title}
+          />
+        )}
       </div>
     </div>
   );
