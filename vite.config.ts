@@ -11,9 +11,21 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    include: ['devlop', 'react-markdown']
+    include: [
+      'devlop',
+      'react-markdown',
+      'hast-util-to-jsx-runtime',
+      'property-information',
+      'hast-util-whitespace',
+      'inline-style-parser',
+      'style-to-object'
+    ],
+    esbuildOptions: {
+      target: 'esnext'
+    }
   },
   build: {
+    target: 'esnext',
     rollupOptions: {
       external: [],
     },
