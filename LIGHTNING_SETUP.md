@@ -13,7 +13,7 @@ Shift uses **Nostr Wallet Connect (NWC)** with your Alby Hub wallet to process L
 ## Your Alby Hub Connection
 
 ```
-nostr+walletconnect://b562deabef6d6695f1d4323ab6f34a29080760304906f38de4e7f5b50359e79d?relay=wss://relay.getalby.com/v1&secret=99fa036d22e408fabd239ed50716e497d43cabb4848eabd98c5f272143aca606&lud16=21sean@getalby.com
+[REDACTED - Use environment variable ALBY_NWC_URL]
 ```
 
 **⚠️ CRITICAL SECURITY NOTICE**: This connection string contains your wallet secret and must NEVER be exposed in frontend code. It should only be stored server-side as an environment variable.
