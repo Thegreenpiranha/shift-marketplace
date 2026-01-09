@@ -26,10 +26,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const nwc = new LN(process.env.ALBY_NWC_URL!);
 
     // Create invoice
-    const invoice = await nwc.makeInvoice({
-      amount,
-      description: description || 'Shift Marketplace Payment',
-    });
+    const invoice = await nwc.makeInvoice(amount, description || 'Shift Marketplace Payment');
 
     res.status(200).json({
       invoice: invoice.paymentRequest,
