@@ -10,28 +10,4 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
-  optimizeDeps: {
-    include: [
-      'devlop',
-      'react-markdown',
-      'hast-util-to-jsx-runtime',
-      'property-information',
-      'hast-util-whitespace',
-      'inline-style-parser',
-      'style-to-object'
-    ],
-    esbuildOptions: {
-      target: 'esnext'
-    }
-  },
-  build: {
-    target: 'esnext',
-    rollupOptions: {
-      external: [],
-    },
-    commonjsOptions: {
-      include: [/node_modules/],
-      transformMixedEsModules: true
-    }
-  }
 })
