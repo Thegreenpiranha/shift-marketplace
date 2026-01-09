@@ -13,7 +13,6 @@ import { useAuthor } from '@/hooks/useAuthor';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { formatPrice, formatSats, convertGBPToSats } from '@/types/marketplace';
 import { genUserName } from '@/lib/genUserName';
-import ReactMarkdown from 'react-markdown';
 import { useCreateInvoice, calculateTotalAmount, usePaymentByListing } from '@/hooks/useAlbyPayments';
 import { PaymentModal } from '@/components/PaymentModal';
 import { getSellerLightningAddress } from '@/components/LightningAddressSettings';
@@ -248,7 +247,7 @@ export default function ListingDetail() {
                 <CardTitle>Description</CardTitle>
               </CardHeader>
               <CardContent className="prose prose-sm max-w-none">
-                <ReactMarkdown>{listing.description}</ReactMarkdown>
+                <div className="whitespace-pre-wrap">{listing.description}</div>
               </CardContent>
             </Card>
 
