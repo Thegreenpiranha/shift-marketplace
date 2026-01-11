@@ -15,6 +15,7 @@ import { formatPrice, formatSats, convertGBPToSats } from '@/types/marketplace';
 import { genUserName } from '@/lib/genUserName';
 import { useCreateInvoice, calculateTotalAmount, usePaymentByListing } from '@/hooks/useAlbyPayments';
 import { PaymentModal } from '@/components/PaymentModal';
+import type { Payment } from '@/hooks/useAlbyPayments';
 import { getSellerLightningAddress } from '@/components/LightningAddressSettings';
 import { useToast } from '@/hooks/useToast';
 
@@ -28,6 +29,7 @@ export default function ListingDetail() {
   const { toast } = useToast();
   const [selectedImage, setSelectedImage] = useState(0);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [currentPayment, setCurrentPayment] = useState<Payment | null>(null);
 
   const { mutate: createInvoice, isPending: isCreatingInvoice } = useCreateInvoice();
   const { data: existingPayment } = usePaymentByListing(listingId);
@@ -75,7 +77,8 @@ export default function ListingDetail() {
         buyerPubkey: user.pubkey,
       },
       {
-        onSuccess: () => {
+        onSuccess: (payment) => {
+          setCurrentPayment(payment);
           setShowPaymentModal(true);
         },
         onError: (error) => {
@@ -414,7 +417,7 @@ export default function ListingDetail() {
           <PaymentModal
             open={showPaymentModal}
             onClose={() => setShowPaymentModal(false)}
-            payment={existingPayment}
+            payment={currentPayment!}
             itemTitle={listing.title}
           />
         )}
