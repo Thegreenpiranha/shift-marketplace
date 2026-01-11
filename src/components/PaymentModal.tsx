@@ -1,3 +1,4 @@
+// Force rebuild
 import { useEffect, useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { Check, Copy, X, Zap, AlertCircle, Loader2 } from 'lucide-react';
