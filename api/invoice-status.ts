@@ -29,13 +29,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     await nwc.enable();
 
-    // Check invoice - Note: lookupInvoice might not be available in WebLN
-    // We'll need to implement this differently or use polling
-    res.status(200).json({
-      paymentHash,
-      status: 'pending', // Placeholder - needs proper implementation
-      message: 'Status checking needs implementation'
-    });
+    // Check if we can get transaction list and find this payment
+    try {
+      // Try to look up the invoice using the payment hash
+      const invoice = await nwc.lookupInvoice({
+        payment_hash: paymentHash
+      });
+
+      res.status(200).json({
+        paymentHash,
+        status: invoice.settled ? 'paid' : 'pending',
+        settled: invoice.settled,
+        settledAt: invoice.settled_at
+      });
+    } catch (lookupError) {
+      // If lookupInvoice doesn't work, return pending
+      // In production you'd check your database or use Alby's webhooks
+      console.error('Lookup not supported:', lookupError);
+      res.status(200).json({
+        paymentHash,
+        status: 'unknown',
+        message: 'Payment status checking via Alby Hub API not fully implemented. Use webhooks in production.'
+      });
+    }
   } catch (error) {
     console.error('Status check failed:', error);
     res.status(500).json({ 
