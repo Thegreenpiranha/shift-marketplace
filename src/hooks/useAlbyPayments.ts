@@ -35,11 +35,14 @@ export interface Payment {
 // NOTE: In production, the NWC connection should be handled by a backend service
 // This is a placeholder that shows the flow - actual NWC calls need server-side implementation
 const ALBY_HUB_API = 'https://api.getalby.com/payments';
-
+const queryClient = useQueryClient();
+/**
 /**
  * Hook to create a Lightning invoice for a purchase
  */
 export function useCreateInvoice() {
+  const queryClient = useQueryClient();
+  
   return useMutation({
     mutationFn: async (request: PaymentRequest): Promise<Payment> => {
       // In production, this would call your backend API endpoint
@@ -60,13 +63,13 @@ export function useCreateInvoice() {
           },
         }),
       });
-
+      
       if (!response.ok) {
         throw new Error('Failed to create invoice');
       }
-
+      
       const data = await response.json();
-
+      
       // Store payment record
       const payment: Payment = {
         id: data.paymentHash,
@@ -81,13 +84,17 @@ export function useCreateInvoice() {
         buyerPubkey: request.buyerPubkey,
         createdAt: Date.now(),
       };
-
-      // Store in localStorage for demo (in production, use proper database)
+      
+      // Store in localStorage
       const payments = getStoredPayments();
       payments.push(payment);
       localStorage.setItem('shift:payments', JSON.stringify(payments));
-
+      
       return payment;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['payment-by-listing'] });
+      queryClient.invalidateQueries({ queryKey: ['payments'] });
     },
   });
 }
