@@ -123,6 +123,28 @@ export default function Settings() {
                 </p>
               </CardContent>
             </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Account</CardTitle>
+                <CardDescription>
+                  Manage your session
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button 
+                  variant="destructive" 
+                  onClick={() => {
+                    localStorage.clear();
+                    window.location.href = "/";
+                  }}
+                >
+                  Log Out
+                </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>
