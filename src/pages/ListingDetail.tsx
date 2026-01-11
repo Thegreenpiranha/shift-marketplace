@@ -413,7 +413,7 @@ export default function ListingDetail() {
         </div>
 
         {/* Payment Modal */}
-        {existingPayment && (
+        {currentPayment && (
           <PaymentModal
             open={showPaymentModal}
             onClose={() => setShowPaymentModal(false)}
