@@ -45,7 +45,7 @@ export function useCreateInvoice() {
       // In production, this would call your backend API endpoint
       // which securely uses the NWC connection to create an invoice
       
-      const response = await fetch('/api/invoices/create', {
+      const response = await fetch('/api/create-invoice', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -102,7 +102,7 @@ export function usePaymentStatus(paymentHash: string | undefined) {
       if (!paymentHash) return null;
 
       // In production, check with backend API
-      const response = await fetch(`/api/invoices/${paymentHash}/status`);
+      const response = await fetch(`/api/invoice-status?paymentHash=${paymentHash}`);
       if (!response.ok) {
         throw new Error('Failed to check payment status');
       }
