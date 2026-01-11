@@ -132,7 +132,7 @@ export function usePaymentStatus(paymentHash: string | undefined) {
     enabled: !!paymentHash,
     refetchInterval: (data) => {
       // Poll every 2 seconds if payment is pending
-      return false; // Disabled until webhooks implemented
+      return data?.status === 'pending' ? 10000 : false; // Poll every 10 seconds
     },
   });
 }
