@@ -28,7 +28,7 @@ export default function Search() {
 
   const { data: listings, isLoading } = useListings({
     search: searchQuery,
-    category: category || undefined,
+    category: category && category !== 'all' ? category : undefined,
     location: location || undefined,
     minPrice: minPrice ? parseFloat(minPrice) : undefined,
     maxPrice: maxPrice ? parseFloat(maxPrice) : undefined,
@@ -38,7 +38,7 @@ export default function Search() {
   useEffect(() => {
     const params = new URLSearchParams();
     if (searchQuery) params.set('q', searchQuery);
-    if (category) params.set('category', category);
+    if (category && category !== 'all') params.set('category', category);
     if (location) params.set('location', location);
     if (minPrice) params.set('minPrice', minPrice);
     if (maxPrice) params.set('maxPrice', maxPrice);
@@ -57,7 +57,7 @@ export default function Search() {
     setMaxPrice('');
   };
 
-  const activeFiltersCount = [category, location, minPrice, maxPrice].filter(Boolean).length;
+  const activeFiltersCount = [category && category !== 'all' ? category : '', location, minPrice, maxPrice].filter(Boolean).length;
 
   const FiltersContent = () => (
     <div className="space-y-6">
@@ -68,7 +68,7 @@ export default function Search() {
             <SelectValue placeholder="All Categories" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Categories</SelectItem>
+            <SelectItem value="all">All Categories</SelectItem>
             {CATEGORIES.map((cat) => (
               <SelectItem key={cat.id} value={cat.id}>
                 {cat.icon} {cat.label}
