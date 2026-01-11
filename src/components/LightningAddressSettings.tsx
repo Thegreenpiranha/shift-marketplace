@@ -174,5 +174,14 @@ export function LightningAddressSettings() {
  * Get seller's Lightning address from storage
  */
 export function getSellerLightningAddress(sellerPubkey: string): string | null {
-  return localStorage.getItem(`shift:lightning:${sellerPubkey}`);
+  // TEMPORARY: Check localStorage first
+  const stored = localStorage.getItem(`shift:lightning:${sellerPubkey}`);
+  if (stored) return stored;
+  
+  // TEMPORARY HACK: For testing, return your address
+  if (sellerPubkey === '2f5de0003db84ecd5449128350c66c7fb63e9d02b250d84af84f463e2f9bcef1') {
+    return '21sean@getalby.com';
+  }
+  
+  return null;
 }
