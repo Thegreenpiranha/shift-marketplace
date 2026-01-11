@@ -45,6 +45,9 @@ export default function Home() {
               <Link to="/messages">
                 <Button variant="ghost">Messages</Button>
               </Link>
+              <Link to="/settings">
+                <Button variant="ghost">Settings</Button>
+              </Link>
               <Link to="/create-listing">
                 <Button>Sell an Item</Button>
               </Link>
