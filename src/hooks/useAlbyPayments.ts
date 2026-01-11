@@ -35,7 +35,6 @@ export interface Payment {
 // NOTE: In production, the NWC connection should be handled by a backend service
 // This is a placeholder that shows the flow - actual NWC calls need server-side implementation
 const ALBY_HUB_API = 'https://api.getalby.com/payments';
-const queryClient = useQueryClient();
 /**
 /**
  * Hook to create a Lightning invoice for a purchase
@@ -93,7 +92,7 @@ export function useCreateInvoice() {
       return payment;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['payment-by-listing'] });
+      queryClient.invalidateQueries({ queryKey: ['payment-by-listing', variables.listingId] });
       queryClient.invalidateQueries({ queryKey: ['payments'] });
     },
   });
