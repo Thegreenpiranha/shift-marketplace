@@ -1,8 +1,8 @@
-import { webln } from '@getalby/sdk';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
+const ALBY_API_URL = 'https://dehh4jm75cudeh45vm62aecrk26lmkpsjm6zxa7cyzrnimg7fa3x52ad.local/api';
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // Enable CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -22,36 +22,31 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: 'Payment hash required' });
     }
 
-    // Initialize NWC connection
-    const nwc = new webln.NostrWebLNProvider({
-      nostrWalletConnectUrl: process.env.ALBY_NWC_URL!
+    // Check invoice status using Alby Hub API
+    const response = await fetch(`${ALBY_API_URL}/invoices/${paymentHash}`, {
+      headers: {
+        'Authorization': `Bearer ${process.env.ALBY_API_TOKEN}`,
+        'Content-Type': 'application/json'
+      }
     });
 
-    await nwc.enable();
-
-    // Check if we can get transaction list and find this payment
-    try {
-      // Try to look up the invoice using the payment hash
-      const invoice = await nwc.lookupInvoice({
-        payment_hash: paymentHash
-      });
-
-      res.status(200).json({
+    if (!response.ok) {
+      console.error('Alby API error:', response.status, await response.text());
+      return res.status(200).json({
         paymentHash,
-        status: invoice.settled ? 'paid' : 'pending',
-        settled: invoice.settled,
-        settledAt: invoice.settled_at
-      });
-    } catch (lookupError) {
-      // If lookupInvoice doesn't work, return pending
-      // In production you'd check your database or use Alby's webhooks
-      console.error('Lookup not supported:', lookupError);
-      res.status(200).json({
-        paymentHash,
-        status: 'unknown',
-        message: 'Payment status checking via Alby Hub API not fully implemented. Use webhooks in production.'
+        status: 'pending',
+        message: 'Could not verify payment status'
       });
     }
+
+    const invoice = await response.json();
+
+    res.status(200).json({
+      paymentHash,
+      status: invoice.settled ? 'paid' : 'pending',
+      settled: invoice.settled,
+      settledAt: invoice.settled_at
+    });
   } catch (error) {
     console.error('Status check failed:', error);
     res.status(500).json({ 
