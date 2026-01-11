@@ -1,6 +1,5 @@
+import { webln } from '@getalby/sdk';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-
-const ALBY_API_URL = 'https://dehh4jm75cudeh45vm62aecrk26lmkpsjm6zxa7cyzrnimg7fa3x52ad.local/api';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -22,31 +21,31 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: 'Payment hash required' });
     }
 
-    // Check invoice status using Alby Hub API
-    const response = await fetch(`${ALBY_API_URL}/invoices/${paymentHash}`, {
-      headers: {
-        'Authorization': `Bearer ${process.env.ALBY_API_TOKEN}`,
-        'Content-Type': 'application/json'
-      }
+    const nwc = new webln.NostrWebLNProvider({
+      nostrWalletConnectUrl: process.env.ALBY_NWC_URL!
     });
 
-    if (!response.ok) {
-      console.error('Alby API error:', response.status, await response.text());
-      return res.status(200).json({
+    await nwc.enable();
+
+    // Try to look up the invoice
+    try {
+      const result = await nwc.lookupInvoice({ payment_hash: paymentHash });
+      
+      res.status(200).json({
+        paymentHash,
+        status: result.settled ? 'paid' : 'pending',
+        settled: result.settled,
+        settledAt: result.settled_at
+      });
+    } catch (lookupError) {
+      // lookupInvoice not supported, return pending
+      console.log('lookupInvoice not available:', lookupError);
+      res.status(200).json({
         paymentHash,
         status: 'pending',
-        message: 'Could not verify payment status'
+        message: 'Payment verification in progress'
       });
     }
-
-    const invoice = await response.json();
-
-    res.status(200).json({
-      paymentHash,
-      status: invoice.settled ? 'paid' : 'pending',
-      settled: invoice.settled,
-      settledAt: invoice.settled_at
-    });
   } catch (error) {
     console.error('Status check failed:', error);
     res.status(500).json({ 
