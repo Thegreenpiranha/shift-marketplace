@@ -1,19 +1,6 @@
-// Force rebuild
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
-import { Check, Copy, X, Zap, AlertCircle, Loader2 } from 'lucide-react';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useToast } from '@/hooks/useToast';
-import { usePaymentStatus, useWebLNPayment } from '@/hooks/useAlbyPayments';
-import { formatSats, formatPrice } from '@/types/marketplace';
+import { X, Copy, Check } from 'lucide-react';
 import type { Payment } from '@/hooks/useAlbyPayments';
 
 interface PaymentModalProps {
@@ -21,222 +8,93 @@ interface PaymentModalProps {
   onClose: () => void;
   payment: Payment;
   itemTitle: string;
-  btcPriceGBP?: number;
 }
 
-export function PaymentModal({
-  open,
-  onClose,
-  payment,
-  itemTitle,
-  btcPriceGBP = 50000,
-}: PaymentModalProps) {
-  const { toast } = useToast();
+export function PaymentModal({ open, onClose, payment, itemTitle }: PaymentModalProps) {
   const [copied, setCopied] = useState(false);
-  const { isWebLNAvailable, checkWebLN, payWithWebLN } = useWebLNPayment();
-  const [isPayingWithWebLN, setIsPayingWithWebLN] = useState(false);
 
-  const { data: paymentStatus, isLoading } = usePaymentStatus(payment.paymentHash);
+  if (!open) return null;
 
-  useEffect(() => {
-    if (open) {
-      checkWebLN();
-    }
-  }, [open]);
-
-  useEffect(() => {
-    // Close modal when payment is confirmed
-    if (paymentStatus?.status === 'paid') {
-      toast({
-        title: 'Payment Received! ⚡',
-        description: 'Your payment has been confirmed. The seller will be notified.',
-      });
-      setTimeout(() => {
-        onClose();
-      }, 2000);
-    }
-  }, [paymentStatus?.status, onClose, toast]);
-
-  const handleCopyInvoice = () => {
+  const handleCopy = () => {
     navigator.clipboard.writeText(payment.invoice);
     setCopied(true);
-    toast({
-      title: 'Copied!',
-      description: 'Lightning invoice copied to clipboard',
-    });
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleWebLNPayment = async () => {
-    setIsPayingWithWebLN(true);
-    try {
-      await payWithWebLN(payment.invoice);
-      toast({
-        title: 'Payment Sent! ⚡',
-        description: 'Waiting for confirmation...',
-      });
-    } catch (error) {
-      toast({
-        title: 'Payment Failed',
-        description: error instanceof Error ? error.message : 'Failed to send payment',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsPayingWithWebLN(false);
-    }
-  };
-
-  const gbpAmount = (payment.totalAmount / 100_000_000) * btcPriceGBP;
-  const gbpItemPrice = (payment.itemPrice / 100_000_000) * btcPriceGBP;
-  const gbpFee = (payment.platformFee / 100_000_000) * btcPriceGBP;
+  const gbpAmount = '£' + (payment.totalAmount / 100000).toFixed(2);
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Zap className="h-5 w-5 text-yellow-500" />
-            Pay with Lightning
-          </DialogTitle>
-          <DialogDescription>
-            Scan QR code or copy invoice to pay with your Lightning wallet
-          </DialogDescription>
-        </DialogHeader>
-
-        <div className="space-y-6">
-          {/* Amount Summary */}
-          <div className="bg-accent/30 rounded-lg p-4 space-y-3">
-            <div>
-              <div className="text-sm text-muted-foreground mb-1">{itemTitle}</div>
-              <div className="text-2xl font-bold">{formatSats(payment.totalAmount)}</div>
-              <div className="text-sm text-muted-foreground">
-                ≈ {formatPrice(gbpAmount, 'GBP')}
-              </div>
-            </div>
-
-            <div className="border-t pt-3 space-y-1 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Item price:</span>
-                <span>
-                  {formatSats(payment.itemPrice)} (≈ {formatPrice(gbpItemPrice, 'GBP')})
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Platform fee (2%):</span>
-                <span>
-                  {formatSats(payment.platformFee)} (≈ {formatPrice(gbpFee, 'GBP')})
-                </span>
-              </div>
-            </div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose}>
+      <div className="bg-white dark:bg-gray-900 rounded-lg p-6 max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        {/* Header */}
+        <div className="flex justify-between items-start mb-4">
+          <div>
+            <h2 className="text-xl font-bold">⚡ Pay with Lightning</h2>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{itemTitle}</p>
           </div>
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+            <X className="h-6 w-6" />
+          </button>
+        </div>
 
-          {/* Payment Status */}
-          {isLoading ? (
-            <div className="flex items-center justify-center gap-2 text-muted-foreground">
-              <Loader2 className="h-4 w-4 animate-spin" />
-              <span>Checking payment status...</span>
-            </div>
-          ) : paymentStatus?.status === 'paid' ? (
-            <Alert className="bg-green-500/10 border-green-500/20">
-              <Check className="h-4 w-4 text-green-500" />
-              <AlertDescription className="text-green-700 dark:text-green-400">
-                Payment confirmed! ⚡
-              </AlertDescription>
-            </Alert>
-          ) : paymentStatus?.status === 'failed' ? (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>Payment failed. Please try again.</AlertDescription>
-            </Alert>
-          ) : (
-            <>
-              {/* WebLN Payment Button */}
-              {isWebLNAvailable && (
-                <div>
-                  <Button
-                    onClick={handleWebLNPayment}
-                    disabled={isPayingWithWebLN}
-                    className="w-full"
-                    size="lg"
-                  >
-                    {isPayingWithWebLN ? (
-                      <>
-                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                        Processing...
-                      </>
-                    ) : (
-                      <>
-                        <Zap className="mr-2 h-5 w-5" />
-                        Pay with WebLN
-                      </>
-                    )}
-                  </Button>
-                  <div className="text-center my-4">
-                    <span className="text-sm text-muted-foreground">or scan QR code</span>
-                  </div>
-                </div>
-              )}
-
-              {/* QR Code */}
-              <div className="flex justify-center">
-                <div className="bg-white p-4 rounded-lg">
-                  <QRCodeSVG value={payment.invoice} size={200} level="M" />
-                </div>
-              </div>
-
-              {/* Invoice String */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Lightning Invoice</label>
-                <div className="flex gap-2">
-                  <div className="flex-1 bg-muted rounded-lg px-3 py-2 text-xs font-mono overflow-hidden">
-                    <div className="truncate">{payment.invoice}</div>
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={handleCopyInvoice}
-                    className="flex-shrink-0"
-                  >
-                    {copied ? (
-                      <Check className="h-4 w-4 text-green-500" />
-                    ) : (
-                      <Copy className="h-4 w-4" />
-                    )}
-                  </Button>
-                </div>
-              </div>
-
-              {/* Instructions */}
-              <Alert>
-                <Zap className="h-4 w-4" />
-                <AlertDescription className="text-sm">
-                  <strong>To pay:</strong>
-                  <ol className="list-decimal list-inside mt-2 space-y-1">
-                    <li>Open your Lightning wallet (Alby, Phoenix, Muun, etc.)</li>
-                    <li>Scan the QR code or paste the invoice</li>
-                    <li>Confirm the payment</li>
-                  </ol>
-                </AlertDescription>
-              </Alert>
-
-              {/* Pending indicator */}
-              <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                <span>Waiting for payment...</span>
-              </div>
-            </>
-          )}
-
-          {/* Close Button */}
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={onClose} className="flex-1">
-              <X className="h-4 w-4 mr-2" />
-              Cancel
-            </Button>
+        {/* Amount */}
+        <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 mb-6 text-center">
+          <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+            {payment.totalAmount.toLocaleString()} sats
+          </div>
+          <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+            ≈ {gbpAmount}
+          </div>
+          <div className="text-xs text-gray-500 mt-2 space-y-1">
+            <div>Item: {payment.itemPrice.toLocaleString()} sats</div>
+            <div>Fee (2%): {payment.platformFee.toLocaleString()} sats</div>
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+
+        {/* QR Code */}
+        <div className="flex justify-center mb-6">
+          <div className="bg-white p-4 rounded-lg shadow-md">
+            <QRCodeSVG value={payment.invoice} size={250} />
+          </div>
+        </div>
+
+        {/* Invoice */}
+        <div className="mb-6">
+          <label className="text-sm font-medium mb-2 block">Lightning Invoice</label>
+          <div className="flex gap-2">
+            <textarea
+              readOnly
+              value={payment.invoice}
+              className="flex-1 bg-gray-100 dark:bg-gray-800 rounded p-3 text-xs font-mono resize-none"
+              rows={3}
+            />
+            <button
+              onClick={handleCopy}
+              className="px-4 bg-blue-600 hover:bg-blue-700 text-white rounded flex items-center gap-2"
+            >
+              {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+            </button>
+          </div>
+        </div>
+
+        {/* Instructions */}
+        <div className="bg-gray-100 dark:bg-gray-800 rounded p-4 text-sm">
+          <p className="font-medium mb-2">How to pay:</p>
+          <ol className="list-decimal list-inside space-y-1 text-gray-700 dark:text-gray-300">
+            <li>Open your Lightning wallet (Phoenix, Alby, etc.)</li>
+            <li>Scan the QR code or paste the invoice</li>
+            <li>Confirm the payment</li>
+          </ol>
+        </div>
+
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="w-full mt-6 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 py-3 rounded font-medium"
+        >
+          Close
+        </button>
+      </div>
+    </div>
   );
 }
-
