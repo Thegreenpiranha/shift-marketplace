@@ -35,6 +35,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       defaultMemo: description || 'Shift Marketplace Payment',
     });
 
+    // Extract payment hash from bolt11 invoice
+    const bolt11 = invoice.paymentRequest;
+    const paymentHashMatch = bolt11.match(/pp([a-z0-9]{52})/);
+    const paymentHash = paymentHashMatch ? paymentHashMatch[1] : "unknown";
+
     res.status(200).json({
       invoice: invoice.paymentRequest,
       paymentHash: invoice.paymentHash,
