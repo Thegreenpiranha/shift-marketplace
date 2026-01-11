@@ -91,7 +91,7 @@ export function useCreateInvoice() {
       
       return payment;
     },
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['payment-by-listing', variables.listingId] });
       queryClient.invalidateQueries({ queryKey: ['payments'] });
     },
@@ -198,7 +198,7 @@ export function usePayoutToSeller() {
 
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['payments'] });
     },
   });
