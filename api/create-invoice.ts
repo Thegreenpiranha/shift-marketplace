@@ -42,7 +42,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     res.status(200).json({
       invoice: invoice.paymentRequest,
-      paymentHash: invoice.paymentHash,
+      paymentHash: paymentHash,
       amount,
       metadata
     });
