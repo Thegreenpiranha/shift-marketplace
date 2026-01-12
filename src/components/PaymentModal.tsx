@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { X, Copy, Check } from 'lucide-react';
 import type { Payment } from '@/hooks/useAlbyPayments';
+import { useDMContext } from '@/hooks/useDMContext';
+import { MESSAGE_PROTOCOL } from '@/lib/dmConstants';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 
 interface PaymentModalProps {
   open: boolean;
@@ -12,6 +15,9 @@ interface PaymentModalProps {
 
 export function PaymentModal({ open, onClose, payment, itemTitle }: PaymentModalProps) {
   const [copied, setCopied] = useState(false);
+  const [paymentConfirmed, setPaymentConfirmed] = useState(false);
+  const { user } = useCurrentUser();
+  const { sendMessage } = useDMContext();
 
   if (!open) return null;
 
@@ -19,6 +25,30 @@ export function PaymentModal({ open, onClose, payment, itemTitle }: PaymentModal
     navigator.clipboard.writeText(payment.invoice);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleConfirmPayment = async () => {
+    setPaymentConfirmed(true);
+    
+    // Update payment status in localStorage
+    const payments = JSON.parse(localStorage.getItem("shift:payments") || "[]");
+    const paymentIndex = payments.findIndex((p: Payment) => p.id === payment.id);
+    if (paymentIndex !== -1) {
+      payments[paymentIndex].status = "paid";
+      payments[paymentIndex].paidAt = Date.now();
+      localStorage.setItem("shift:payments", JSON.stringify(payments));
+    }
+
+    // Send DM to seller
+    if (user) {
+      await sendMessage({
+        recipientPubkey: payment.sellerPubkey,
+        protocol: MESSAGE_PROTOCOL.NIP17,
+        content: `I have paid the Lightning invoice for listing ${payment.listingId}. Transaction total: ${payment.totalAmount} sats. Please verify and ship when ready!`
+      });
+    }
+
+    setTimeout(() => onClose(), 2000);
   };
 
   const gbpAmount = '£' + (payment.totalAmount / 100000).toFixed(2);
@@ -88,6 +118,18 @@ export function PaymentModal({ open, onClose, payment, itemTitle }: PaymentModal
         </div>
 
         {/* Close Button */}
+        {!paymentConfirmed ? (
+          <button
+            onClick={handleConfirmPayment}
+            className="w-full mb-3 bg-green-600 hover:bg-green-700 text-white py-3 rounded font-medium"
+          >
+            ✓ I've Paid
+          </button>
+        ) : (
+          <div className="mb-3 bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 py-3 rounded text-center font-medium">
+            ✓ Payment confirmed! Seller notified.
+          </div>
+        )}
         <button
           onClick={onClose}
           className="w-full mt-6 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 py-3 rounded font-medium"
