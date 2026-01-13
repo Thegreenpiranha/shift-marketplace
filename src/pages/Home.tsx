@@ -22,6 +22,17 @@ export default function Home() {
   
   // Get recent listings instead of featured
   const { data: recentListings, isLoading } = useListings({ limit: 8 });
+  
+  // Prioritize UK listings
+  const ukListings = recentListings?.filter(l => 
+    l.currency === "GBP" || 
+    l.location?.toLowerCase().includes("uk") || 
+    l.location?.toLowerCase().includes("united kingdom") ||
+    l.location?.toLowerCase().includes("england") ||
+    l.location?.toLowerCase().includes("scotland") ||
+    l.location?.toLowerCase().includes("wales")
+  );
+  const displayListings = ukListings && ukListings.length > 0 ? ukListings : recentListings;
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,14 +130,14 @@ export default function Home() {
       <section className="py-20 px-4 bg-gradient-to-b from-blue-50 to-background dark:from-blue-950/20">
         <div className="container mx-auto max-w-4xl text-center">
           <h2 className="text-5xl font-bold mb-6">
-            Buy and Sell Locally.
+            Buy and Sell Locally in the UK.
             <br />
             <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               Powered by Bitcoin.
             </span>
           </h2>
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            A decentralized marketplace with instant Lightning payments and escrow protection.
+            A UK-focused Bitcoin marketplace with instant Lightning payments and escrow protection.
             No middlemen. No fees beyond 2%.
           </p>
 
@@ -202,9 +213,9 @@ export default function Home() {
 
           {isLoading ? (
             <div className="text-center py-12 text-muted-foreground">Loading listings...</div>
-          ) : recentListings && recentListings.length > 0 ? (
+          ) : displayListings && displayListings.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {recentListings.map((listing) => (
+              {displayListings?.map((listing) => (
                 <Link key={listing.id} to={`/listing/${listing.id}`}>
                   <Card className="hover:shadow-lg transition-all hover:-translate-y-1 h-full">
                     <CardContent className="p-0">
@@ -264,7 +275,7 @@ export default function Home() {
               </div>
               <h4 className="font-semibold mb-2">List Your Item</h4>
               <p className="text-sm text-muted-foreground">
-                Create a listing with photos and description. Set your price in GBP or sats.
+                Create a listing with photos and description. Price in GBP (UK pounds) or Bitcoin sats.
               </p>
             </div>
             <div>
