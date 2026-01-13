@@ -111,7 +111,6 @@ export default function Home() {
                 </Link>
               )}
             </div>
-            </nav>
           </div>
         </div>
       </header>
