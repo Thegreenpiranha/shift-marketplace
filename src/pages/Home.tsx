@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSeoMeta } from '@unhead/react';
-import { Search, TrendingUp, Shield, Zap, ArrowRight } from 'lucide-react';
+import { Search, TrendingUp, Shield, Zap, ArrowRight, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useListings } from '@/hooks/useListings';
 import { CATEGORIES, formatPrice, formatSats } from '@/types/marketplace';
@@ -54,7 +55,8 @@ export default function Home() {
                 Shift
               </h1>
             </Link>
-            <nav className="flex items-center gap-4">
+            {/* Desktop Nav */}
+            <nav className="hidden md:flex items-center gap-4">
               {user ? (
                 <>
                   <Link to="/my-listings">
@@ -75,6 +77,40 @@ export default function Home() {
                   <Button>Sign In</Button>
                 </Link>
               )}
+            </nav>
+
+            {/* Mobile Nav */}
+            <div className="md:hidden">
+              {user ? (
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <Menu className="h-6 w-6" />
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="right">
+                    <nav className="flex flex-col gap-4 mt-8">
+                      <Link to="/my-listings" className="w-full">
+                        <Button variant="ghost" className="w-full justify-start">My Listings</Button>
+                      </Link>
+                      <Link to="/messages" className="w-full">
+                        <Button variant="ghost" className="w-full justify-start">Messages</Button>
+                      </Link>
+                      <Link to="/settings" className="w-full">
+                        <Button variant="ghost" className="w-full justify-start">Settings</Button>
+                      </Link>
+                      <Link to="/create-listing" className="w-full">
+                        <Button className="w-full">Sell an Item</Button>
+                      </Link>
+                    </nav>
+                  </SheetContent>
+                </Sheet>
+              ) : (
+                <Link to="/create-listing">
+                  <Button>Sign In</Button>
+                </Link>
+              )}
+            </div>
             </nav>
           </div>
         </div>
