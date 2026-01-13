@@ -272,8 +272,8 @@ export default function CreateListing() {
 
                   {images.length < 5 && (
                     <label className="aspect-square border-2 border-dashed rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-accent/50 transition-colors">
-                      <Upload className="h-8 w-8 text-muted-foreground mb-2" />
-                      <span className="text-sm text-muted-foreground">Upload</span>
+                      {isUploading ? <Loader2 className="h-8 w-8 text-muted-foreground mb-2 animate-spin" /> : <Upload className="h-8 w-8 text-muted-foreground mb-2" />}
+                      <span className="text-sm text-muted-foreground">{isUploading ? "Uploading..." : "Upload"}</span>
                       <input
                         type="file"
                         accept="image/*"
