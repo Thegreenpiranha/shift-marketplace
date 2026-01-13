@@ -1,26 +1,26 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSeoMeta } from '@unhead/react';
-import { Search, ShieldCheck, Lock, MessageSquare, TrendingUp } from 'lucide-react';
+import { Search, TrendingUp, Shield, Zap, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useFeaturedListings } from '@/hooks/useListings';
-import { CATEGORIES, formatPrice } from '@/types/marketplace';
+import { Card, CardContent } from '@/components/ui/card';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { useListings } from '@/hooks/useListings';
+import { CATEGORIES, formatPrice, formatSats } from '@/types/marketplace';
 
 export default function Home() {
   useSeoMeta({
-    title: 'Shift - Buy and sell locally. Securely.',
-    description: 'A modern peer-to-peer marketplace with escrow protection. Buy and sell electronics, clothing, vehicles, and more using Bitcoin Lightning Network.',
-    ogTitle: 'Shift - Local P2P Marketplace',
-    ogDescription: 'Buy and sell locally. Securely.',
+    title: 'Shift - Buy and Sell Locally with Bitcoin',
+    description: 'A modern peer-to-peer marketplace powered by Bitcoin Lightning and Nostr. Buy and sell securely with instant payments.',
   });
 
   const navigate = useNavigate();
+  const { user } = useCurrentUser();
   const [searchQuery, setSearchQuery] = useState('');
-  const { data: featuredListings, isLoading } = useFeaturedListings(6);
+  
+  // Get recent listings instead of featured
+  const { data: recentListings, isLoading } = useListings({ limit: 8 });
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,271 +29,246 @@ export default function Home() {
     }
   };
 
+  const getCategoryIcon = (categoryId: string) => {
+    const icons: Record<string, string> = {
+      electronics: '📱',
+      clothing: '👕',
+      home: '🏠',
+      vehicles: '🚗',
+      books: '📚',
+      sports: '⚽',
+      toys: '🎮',
+      other: '📦'
+    };
+    return icons[categoryId] || '📦';
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
+      <header className="border-b bg-background/95 backdrop-blur sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <Link to="/">
-              <h1 className="text-2xl font-bold text-primary">Shift</h1>
+            <Link to="/" className="flex items-center gap-2">
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                Shift
+              </h1>
             </Link>
             <nav className="flex items-center gap-4">
-              <Link to="/my-listings">
-                <Button variant="ghost">My Listings</Button>
-              </Link>
-              <Link to="/messages">
-                <Button variant="ghost">Messages</Button>
-              </Link>
-              <Link to="/settings">
-                <Button variant="ghost">Settings</Button>
-              </Link>
-              <Link to="/create-listing">
-                <Button>Sell an Item</Button>
-              </Link>
+              {user ? (
+                <>
+                  <Link to="/my-listings">
+                    <Button variant="ghost">My Listings</Button>
+                  </Link>
+                  <Link to="/messages">
+                    <Button variant="ghost">Messages</Button>
+                  </Link>
+                  <Link to="/settings">
+                    <Button variant="ghost">Settings</Button>
+                  </Link>
+                  <Link to="/create-listing">
+                    <Button>Sell an Item</Button>
+                  </Link>
+                </>
+              ) : (
+                <Link to="/create-listing">
+                  <Button>Sign In</Button>
+                </Link>
+              )}
             </nav>
           </div>
         </div>
       </header>
 
-      {/* Hero Section with Search */}
-      <section className="py-16 bg-gradient-to-r from-primary/5 via-accent/10 to-primary/5">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center space-y-6">
-            <h2 className="text-4xl md:text-5xl font-bold text-foreground">
-              Buy and sell locally. Securely.
-            </h2>
-            <p className="text-lg text-muted-foreground">
-              A modern peer-to-peer marketplace with escrow protection
-            </p>
+      {/* Hero Section */}
+      <section className="py-20 px-4 bg-gradient-to-b from-blue-50 to-background dark:from-blue-950/20">
+        <div className="container mx-auto max-w-4xl text-center">
+          <h2 className="text-5xl font-bold mb-6">
+            Buy and Sell Locally.
+            <br />
+            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Powered by Bitcoin.
+            </span>
+          </h2>
+          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+            A decentralized marketplace with instant Lightning payments and escrow protection.
+            No middlemen. No fees beyond 2%.
+          </p>
 
-            {/* Search Bar */}
-            <form onSubmit={handleSearch} className="relative">
+          {/* Search Bar */}
+          <form onSubmit={handleSearch} className="max-w-2xl mx-auto mb-12">
+            <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <Input
                 type="text"
-                placeholder="Search for items, services, or sellers..."
+                placeholder="Search for anything..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-12 pr-4 h-14 text-lg shadow-lg"
+                className="pl-12 pr-4 py-6 text-lg rounded-full border-2"
               />
-            </form>
+              <Button 
+                type="submit" 
+                size="lg"
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full"
+              >
+                Search
+              </Button>
+            </div>
+          </form>
 
-            {/* Trust Indicators */}
-            <div className="flex flex-wrap justify-center gap-6 pt-6">
-              <div className="flex items-center gap-2 text-sm">
-                <Lock className="h-5 w-5 text-primary" />
-                <span className="font-medium">Escrow Protection</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <ShieldCheck className="h-5 w-5 text-primary" />
-                <span className="font-medium">Verified Sellers</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <MessageSquare className="h-5 w-5 text-primary" />
-                <span className="font-medium">Secure Messaging</span>
-              </div>
+          {/* Quick Stats */}
+          <div className="flex justify-center gap-8 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4" />
+              <span>{recentListings?.length || 0}+ active listings</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Shield className="h-4 w-4" />
+              <span>Escrow protected</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Zap className="h-4 w-4 text-yellow-500" />
+              <span>Lightning fast payments</span>
             </div>
           </div>
         </div>
       </section>
 
       {/* Categories */}
-      <section className="py-12 container mx-auto px-4">
-        <h3 className="text-2xl font-bold mb-6">Browse by Category</h3>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          {CATEGORIES.map((category) => (
-            <Link key={category.id} to={`/category/${category.id}`}>
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary/50">
-                <CardContent className="p-6 text-center">
-                  <div className="text-4xl mb-2">{category.icon}</div>
-                  <h4 className="font-semibold text-sm">{category.label}</h4>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
+      <section className="py-16 px-4">
+        <div className="container mx-auto max-w-6xl">
+          <h3 className="text-2xl font-bold mb-8">Browse by Category</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {CATEGORIES.map((category) => (
+              <Link key={category.id} to={`/category/${category.id}`}>
+                <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
+                  <CardContent className="p-6 text-center">
+                    <div className="text-4xl mb-3">{getCategoryIcon(category.id)}</div>
+                    <h4 className="font-semibold">{category.label}</h4>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* Featured Listings */}
-      <section className="py-12 bg-secondary/30">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-2xl font-bold">Featured Listings</h3>
+      {/* Recent Listings */}
+      <section className="py-16 px-4 bg-secondary/10">
+        <div className="container mx-auto max-w-6xl">
+          <div className="flex justify-between items-center mb-8">
+            <h3 className="text-2xl font-bold">Recent Listings</h3>
             <Link to="/search">
-              <Button variant="outline">View All</Button>
+              <Button variant="ghost">
+                View All <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
             </Link>
           </div>
 
           {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <Card key={i}>
-                  <CardHeader>
-                    <Skeleton className="h-48 w-full" />
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    <Skeleton className="h-6 w-3/4" />
-                    <Skeleton className="h-4 w-1/2" />
-                  </CardContent>
-                  <CardFooter>
-                    <Skeleton className="h-8 w-24" />
-                  </CardFooter>
-                </Card>
-              ))}
-            </div>
-          ) : featuredListings && featuredListings.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {featuredListings.map((listing) => (
+            <div className="text-center py-12 text-muted-foreground">Loading listings...</div>
+          ) : recentListings && recentListings.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {recentListings.map((listing) => (
                 <Link key={listing.id} to={`/listing/${listing.id}`}>
-                  <Card className="hover:shadow-xl transition-shadow h-full">
-                    <CardHeader className="p-0">
-                      <div className="relative aspect-video overflow-hidden rounded-t-lg">
-                        <img
-                          src={listing.images[0] || 'https://placehold.co/600x400?text=No+Image'}
-                          alt={listing.title}
-                          className="w-full h-full object-cover hover:scale-105 transition-transform"
-                        />
-                        {listing.status === 'sold' && (
-                          <Badge className="absolute top-2 right-2" variant="secondary">
-                            Sold
-                          </Badge>
-                        )}
-                      </div>
-                    </CardHeader>
-                    <CardContent className="p-4 space-y-2">
-                      <h4 className="font-semibold line-clamp-2">{listing.title}</h4>
-                      <p className="text-sm text-muted-foreground">{listing.location}</p>
-                      {listing.summary && (
-                        <p className="text-sm text-muted-foreground line-clamp-2">
-                          {listing.summary}
-                        </p>
-                      )}
-                    </CardContent>
-                    <CardFooter className="p-4 pt-0 flex items-center justify-between">
-                      <div>
-                        <div className="text-2xl font-bold text-primary">
-                          {formatPrice(listing.price, listing.currency)}
-                        </div>
-                        {listing.priceSats && (
-                          <div className="text-xs text-muted-foreground">
-                            {new Intl.NumberFormat('en-GB').format(listing.priceSats)} sats
+                  <Card className="hover:shadow-lg transition-all hover:-translate-y-1 h-full">
+                    <CardContent className="p-0">
+                      {/* Image */}
+                      <div className="aspect-square bg-secondary/20 rounded-t-lg overflow-hidden">
+                        {listing.images[0] ? (
+                          <img
+                            src={listing.images[0]}
+                            alt={listing.title}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-6xl">
+                            {getCategoryIcon(listing.category)}
                           </div>
                         )}
                       </div>
-                    </CardFooter>
+                      {/* Content */}
+                      <div className="p-4">
+                        <h4 className="font-semibold mb-2 line-clamp-2">{listing.title}</h4>
+                        <div className="flex items-baseline gap-2 mb-2">
+                          <span className="text-xl font-bold text-primary">
+                            {formatPrice(listing.price, listing.currency)}
+                          </span>
+                          <span className="text-sm text-muted-foreground">
+                            {formatSats(listing.priceSats)}
+                          </span>
+                        </div>
+                        {listing.location && (
+                          <p className="text-sm text-muted-foreground">📍 {listing.location}</p>
+                        )}
+                      </div>
+                    </CardContent>
                   </Card>
                 </Link>
               ))}
             </div>
           ) : (
-            <Card className="border-dashed">
-              <CardContent className="py-12 text-center">
-                <TrendingUp className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                <p className="text-muted-foreground">
-                  No featured listings yet. Be the first to create a listing!
-                </p>
-                <Link to="/create-listing">
-                  <Button className="mt-4">Create Listing</Button>
-                </Link>
-              </CardContent>
-            </Card>
+            <div className="text-center py-12">
+              <p className="text-muted-foreground mb-4">No listings yet. Be the first to list an item!</p>
+              <Link to="/create-listing">
+                <Button size="lg">Create Listing</Button>
+              </Link>
+            </div>
           )}
         </div>
       </section>
 
       {/* How It Works */}
-      <section className="py-16 container mx-auto px-4">
-        <h3 className="text-3xl font-bold text-center mb-12">How Shift Works</h3>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div className="text-center space-y-4">
-            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
-              <span className="text-2xl font-bold text-primary">1</span>
+      <section className="py-16 px-4">
+        <div className="container mx-auto max-w-4xl text-center">
+          <h3 className="text-2xl font-bold mb-12">How Shift Works</h3>
+          <div className="grid md:grid-cols-3 gap-8">
+            <div>
+              <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl">1️⃣</span>
+              </div>
+              <h4 className="font-semibold mb-2">List Your Item</h4>
+              <p className="text-sm text-muted-foreground">
+                Create a listing with photos and description. Set your price in GBP or sats.
+              </p>
             </div>
-            <h4 className="font-semibold text-lg">List Your Item</h4>
-            <p className="text-muted-foreground text-sm">
-              Create a listing with photos and details. Set your price in GBP.
-            </p>
-          </div>
-          <div className="text-center space-y-4">
-            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
-              <span className="text-2xl font-bold text-primary">2</span>
+            <div>
+              <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl">2️⃣</span>
+              </div>
+              <h4 className="font-semibold mb-2">Buyer Pays with Lightning</h4>
+              <p className="text-sm text-muted-foreground">
+                Instant Bitcoin payment held in escrow for buyer protection.
+              </p>
             </div>
-            <h4 className="font-semibold text-lg">Buyer Pays Securely</h4>
-            <p className="text-muted-foreground text-sm">
-              Payment goes into escrow via Lightning Network. Your funds are protected.
-            </p>
-          </div>
-          <div className="text-center space-y-4">
-            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
-              <span className="text-2xl font-bold text-primary">3</span>
+            <div>
+              <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl">3️⃣</span>
+              </div>
+              <h4 className="font-semibold mb-2">Ship & Get Paid</h4>
+              <p className="text-sm text-muted-foreground">
+                Buyer confirms delivery, you receive payment. Simple and secure.
+              </p>
             </div>
-            <h4 className="font-semibold text-lg">Complete the Trade</h4>
-            <p className="text-muted-foreground text-sm">
-              Seller ships the item. Buyer confirms receipt through our messaging system.
-            </p>
-          </div>
-          <div className="text-center space-y-4">
-            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
-              <span className="text-2xl font-bold text-primary">4</span>
-            </div>
-            <h4 className="font-semibold text-lg">Funds Released</h4>
-            <p className="text-muted-foreground text-sm">
-              Once both parties confirm, funds are released to the seller automatically.
-            </p>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t bg-muted/30 py-12">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <h4 className="font-semibold mb-4">About Shift</h4>
-              <p className="text-sm text-muted-foreground">
-                A modern peer-to-peer marketplace, powered by Bitcoin Lightning for
-                secure, instant payments.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">For Buyers</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/how-it-works" className="hover:text-primary">How It Works</Link></li>
-                <li><Link to="/how-it-works" className="hover:text-primary">Buyer Protection</Link></li>
-                <li><Link to="/search" className="hover:text-primary">Browse Listings</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">For Sellers</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/create-listing" className="hover:text-primary">Create Listing</Link></li>
-                <li><Link to="/how-it-works" className="hover:text-primary">Seller Guide</Link></li>
-                <li><Link to="/how-it-works" className="hover:text-primary">Fees & Pricing</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Support</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/how-it-works" className="hover:text-primary">Help Centre</Link></li>
-                <li><Link to="/how-it-works" className="hover:text-primary">Safety Tips</Link></li>
-                <li><a href="https://github.com/nostr-protocol/nips" target="_blank" rel="noopener noreferrer" className="hover:text-primary">About Nostr</a></li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t mt-8 pt-8 text-center text-sm text-muted-foreground">
-            <p>
-              Vibed with{' '}
-              <a
-                href="https://shakespeare.diy"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary hover:underline"
-              >
-                Shakespeare
-              </a>{' '}
-              · © 2025 Shift
+      <footer className="border-t py-8 px-4 mt-16">
+        <div className="container mx-auto max-w-6xl">
+          <div className="flex justify-between items-center">
+            <p className="text-sm text-muted-foreground">
+              © 2026 Shift. Powered by Bitcoin Lightning & Nostr.
             </p>
+            <div className="flex gap-6 text-sm">
+              <Link to="/how-it-works" className="text-muted-foreground hover:text-foreground">
+                How It Works
+              </Link>
+              <a href="https://github.com/nostr-protocol" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground">
+                About Nostr
+              </a>
+            </div>
           </div>
         </div>
       </footer>
