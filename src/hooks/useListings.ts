@@ -42,6 +42,23 @@ export function useListings(filters: ListingsFilters = {}) {
       let listings: ListingData[] = events
         .map(parseListingEvent)
         .filter((listing): listing is ListingData => listing !== null);
+      
+      // Filter to UK-based listings by default (unless location filter specified)
+      if (!filters.location) {
+        const isUKListing = (l: ListingData) => {
+          const loc = l.location?.toLowerCase() || "";
+          return (
+            l.currency === "GBP" ||
+            loc.includes("uk") ||
+            loc.includes("united kingdom") ||
+            loc.includes("england") ||
+            loc.includes("scotland") ||
+            loc.includes("wales") ||
+            loc.includes("northern ireland")
+          );
+        };
+        listings = listings.filter(isUKListing);
+      }
 
       // Apply client-side filters
       if (filters.status) {
