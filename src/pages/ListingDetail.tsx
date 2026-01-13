@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
-import { useListing } from '@/hooks/useListings';
+import { useListing, useListings } from '@/hooks/useListings';
 import { useSellerReputation, useSellerReviews } from '@/hooks/useSellerReputation';
 import { useAuthor } from '@/hooks/useAuthor';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
@@ -23,6 +23,10 @@ import { useToast } from '@/hooks/useToast';
 export default function ListingDetail() {
   const { listingId } = useParams<{ listingId: string }>();
   const { data: listing, isLoading } = useListing(listingId!);
+  const { data: sellerListings } = useListings({ 
+    sellerPubkey: listing?.sellerPubkey, 
+    limit: 4 
+  });
   const { data: reputation } = useSellerReputation(listing?.sellerPubkey);
   const { data: reviews } = useSellerReviews(listing?.sellerPubkey, 5);
   const author = useAuthor(listing?.sellerPubkey);
@@ -124,23 +128,7 @@ export default function ListingDetail() {
         </div>
       </div>
     );
-  }
-
-  return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-background sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <Link to="/">
-              <h1 className="text-xl font-bold text-primary">Shift</h1>
-            </Link>
-            <nav className="flex items-center gap-4">
-              <Link to="/my-listings">
-                <Button variant="ghost">My Listings</Button>
-              </Link>
-              <Link to="/messages">
-                <Button variant="ghost">Messages</Button>
+      <Header />
               </Link>
               <Link to="/create-listing">
                 <Button>Sell an Item</Button>
@@ -323,6 +311,20 @@ export default function ListingDetail() {
                 {!isOwnListing && listing.status === 'active' && (
                   <div className="space-y-3">
                     {existingPayment && existingPayment.status !== 'settled' ? (
+                    <Link to={`/messages?recipient=${listing.sellerPubkey}`} className="w-full">
+                      <Button className="w-full" size="lg" variant="default">
+                        <MessageCircle className="h-5 w-5 mr-2" />
+                        Contact Seller
+                      </Button>
+                    </Link>
+                    <div className="relative">
+                      <div className="absolute inset-0 flex items-center">
+                        <span className="w-full border-t" />
+                      </div>
+                      <div className="relative flex justify-center text-xs uppercase">
+                        <span className="bg-background px-2 text-muted-foreground">Or pay instantly</span>
+                      </div>
+                    </div>
                       <div className="space-y-2">
                         <Button
                           className="w-full"
@@ -408,6 +410,39 @@ export default function ListingDetail() {
             </Button>
           </div>
         </div>
+
+        {/* More from this seller */}
+        {sellerListings && sellerListings.length > 1 && (
+          <div className="mt-12">
+            <h2 className="text-2xl font-bold mb-6">More from {sellerName}</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {sellerListings
+                .filter(item => item.id !== listing.id)
+                .slice(0, 4)
+                .map((item) => (
+                  <Link key={item.id} to={`/listing/${item.id}`}>
+                    <Card className="hover:shadow-lg transition-all hover:-translate-y-1 h-full">
+                      <CardContent className="p-0">
+                        <div className="aspect-square bg-secondary/20 rounded-t-lg overflow-hidden">
+                          {item.images[0] ? (
+                            <img src={item.images[0]} alt={item.title} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-4xl">📦</div>
+                          )}
+                        </div>
+                        <div className="p-4">
+                          <h4 className="font-semibold mb-2 line-clamp-2">{item.title}</h4>
+                          <div className="text-lg font-bold text-primary">
+                            {formatPrice(item.price, item.currency)}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
+            </div>
+          </div>
+        )}
 
         {/* Payment Modal */}
         {currentPayment && (
