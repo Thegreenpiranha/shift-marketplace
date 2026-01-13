@@ -346,10 +346,6 @@ export default function ListingDetail() {
                           <Zap className="h-5 w-5 mr-2" />
                           {isCreatingInvoice ? 'Creating Invoice...' : 'Pay with Lightning'}
                         </Button>
-                        <Button className="w-full" size="lg" variant="outline">
-                          <MessageCircle className="h-5 w-5 mr-2" />
-                          Contact Seller
-                        </Button>
                       </>
                     )}
                     <p className="text-xs text-center text-muted-foreground">
