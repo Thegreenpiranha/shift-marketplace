@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Header } from '@/components/Header';
+import { Header } from '@/components/Header';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, MapPin, Star, ShieldCheck, MessageCircle, Calendar, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -23,10 +24,7 @@ import { useToast } from '@/hooks/useToast';
 export default function ListingDetail() {
   const { listingId } = useParams<{ listingId: string }>();
   const { data: listing, isLoading } = useListing(listingId!);
-  const { data: sellerListings } = useListings({ 
-    sellerPubkey: listing?.sellerPubkey, 
-    limit: 4 
-  });
+  const { data: sellerListings } = useListings({ sellerPubkey: listing?.sellerPubkey, limit: 4 });
   const { data: reputation } = useSellerReputation(listing?.sellerPubkey);
   const { data: reviews } = useSellerReviews(listing?.sellerPubkey, 5);
   const author = useAuthor(listing?.sellerPubkey);
@@ -128,15 +126,13 @@ export default function ListingDetail() {
         </div>
       </div>
     );
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Header */}
       <Header />
-              </Link>
-              <Link to="/create-listing">
-                <Button>Sell an Item</Button>
-              </Link>
-            </nav>
-          </div>
-        </div>
-      </header>
+
 
       <div className="container mx-auto px-4 py-8">
         <Link to="/search">
@@ -310,14 +306,13 @@ export default function ListingDetail() {
 
                 {!isOwnListing && listing.status === 'active' && (
                   <div className="space-y-3">
-                    {existingPayment && existingPayment.status !== 'settled' ? (
                     <Link to={`/messages?recipient=${listing.sellerPubkey}`} className="w-full">
-                      <Button className="w-full" size="lg" variant="default">
+                      <Button className="w-full" size="lg">
                         <MessageCircle className="h-5 w-5 mr-2" />
                         Contact Seller
                       </Button>
                     </Link>
-                    <div className="relative">
+                    <div className="relative my-4">
                       <div className="absolute inset-0 flex items-center">
                         <span className="w-full border-t" />
                       </div>
@@ -325,6 +320,7 @@ export default function ListingDetail() {
                         <span className="bg-background px-2 text-muted-foreground">Or pay instantly</span>
                       </div>
                     </div>
+                    {existingPayment && existingPayment.status !== 'settled' ? (
                       <div className="space-y-2">
                         <Button
                           className="w-full"
@@ -443,7 +439,6 @@ export default function ListingDetail() {
             </div>
           </div>
         )}
-
         {/* Payment Modal */}
         {currentPayment && (
           <PaymentModal
