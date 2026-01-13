@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Header } from '@/components/Header';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Search as SearchIcon, SlidersHorizontal, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -117,26 +118,7 @@ export default function Search() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b bg-background sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <Link to="/">
-              <h1 className="text-xl font-bold text-primary">Shift</h1>
-            </Link>
-            <nav className="flex items-center gap-4">
-              <Link to="/my-listings">
-                <Button variant="ghost">My Listings</Button>
-              </Link>
-              <Link to="/messages">
-                <Button variant="ghost">Messages</Button>
-              </Link>
-              <Link to="/create-listing">
-                <Button>Sell an Item</Button>
-              </Link>
-            </nav>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       <div className="container mx-auto px-4 py-8">
         <div className="flex gap-8">

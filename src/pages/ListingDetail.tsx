@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Header } from '@/components/Header';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, MapPin, Star, ShieldCheck, MessageCircle, Calendar, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -95,11 +96,7 @@ export default function ListingDetail() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
-        <header className="border-b bg-background sticky top-0 z-50">
-          <div className="container mx-auto px-4 py-4">
-            <Skeleton className="h-8 w-48" />
-          </div>
-        </header>
+        <Header />
         <div className="container mx-auto px-4 py-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-4">
