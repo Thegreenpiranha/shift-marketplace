@@ -13,6 +13,7 @@ import { EnhancedLoginArea } from '@/components/auth/EnhancedLoginArea';
 import { MessageCircle, Send, ArrowLeft } from 'lucide-react';
 import { MESSAGE_PROTOCOL } from '@/lib/dmConstants';
 import { genUserName } from '@/lib/genUserName';
+import { ConversationItem } from '@/components/ConversationItem';
 
 export default function MessagesPage() {
   const { user } = useCurrentUser();
