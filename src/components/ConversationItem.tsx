@@ -5,7 +5,7 @@ import { genUserName } from '@/lib/genUserName';
 interface ConversationItemProps {
   pubkey: string;
   lastMessage?: {
-    created_at: number;
+    timestamp: number;
     decryptedContent?: string;
   };
   isSelected: boolean;
@@ -33,7 +33,7 @@ export function ConversationItem({ pubkey, lastMessage, isSelected, onClick }: C
           <p className="font-semibold truncate">{name}</p>
           {lastMessage && (
             <span className="text-xs text-muted-foreground ml-2">
-              {new Date(lastMessage.created_at * 1000).toLocaleDateString()}
+              {new Date(lastMessage.timestamp).toLocaleDateString()}
             </span>
           )}
         </div>

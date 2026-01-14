@@ -125,7 +125,7 @@ export default function MessagesPage() {
                         <div className={`max-w-[70%] rounded-lg px-4 py-2 ${isFromMe ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
                           <p className="text-sm whitespace-pre-wrap break-words">{message.decryptedContent}</p>
                           <p className={`text-xs mt-1 ${isFromMe ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
-                            {new Date(message.created_at * 1000).toLocaleTimeString()}
+                            {new Date(message.timestamp).toLocaleTimeString()}
                           </p>
                         </div>
                       </div>
