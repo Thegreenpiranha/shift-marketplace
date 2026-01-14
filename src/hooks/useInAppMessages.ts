@@ -67,7 +67,7 @@ export function useInAppMessages() {
 
   // Poll for new messages every 3 seconds
   useEffect(() => {
-    const interval = setInterval(loadConversations, 3000);
+    const interval = setInterval(loadConversations, 5000);
     return () => clearInterval(interval);
   }, [loadConversations]);
 

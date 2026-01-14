@@ -31,6 +31,7 @@ export default function MessagesPage() {
 
   const selectedConversation = conversations.find(c => c.pubkey === selectedPubkey);
   const selectedAuthor = useAuthor(selectedPubkey || undefined);
+  const myAuthor = useAuthor(user?.pubkey);
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -138,8 +139,8 @@ export default function MessagesPage() {
                         </div>
                         {isFromMe && (
                           <Avatar className="h-8 w-8 flex-shrink-0 mt-1">
-                            <AvatarImage src={user.picture} />
-                            <AvatarFallback>{(user.name || "You")[0]?.toUpperCase()}</AvatarFallback>
+                            <AvatarImage src={myAuthor?.data?.metadata?.picture} />
+                            <AvatarFallback>{(myAuthor?.data?.metadata?.display_name || myAuthor?.data?.metadata?.name || "You")[0]?.toUpperCase()}</AvatarFallback>
                           </Avatar>
                         )}
                       </div>
