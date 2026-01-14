@@ -102,11 +102,11 @@ export default function MessagesPage() {
                   <ArrowLeft className="h-5 w-5" />
                 </Button>
                 <Avatar>
-                  <AvatarImage src={selectedAuthor?.picture} />
-                  <AvatarFallback>{(selectedAuthor?.name || "User")[0]?.toUpperCase()}</AvatarFallback>
+                  <AvatarImage src={selectedAuthor?.data?.metadata?.picture} />
+                  <AvatarFallback>{(selectedAuthor?.data?.metadata?.name || "User")[0]?.toUpperCase()}</AvatarFallback>
                 </Avatar>
                 <div>
-                  <h3 className="font-semibold">{selectedAuthor?.name || "Anonymous"}</h3>
+                  <h3 className="font-semibold">{selectedAuthor?.data?.metadata?.name || "Anonymous"}</h3>
                   <p className="text-xs text-muted-foreground">Active on Shift</p>
                 </div>
               </div>
