@@ -14,8 +14,8 @@ interface ConversationItemProps {
 
 export function ConversationItem({ pubkey, lastMessage, isSelected, onClick }: ConversationItemProps) {
   const author = useAuthor(pubkey);
-  const name = author?.name || genUserName(pubkey);
-  const avatar = author?.picture;
+  const name = author?.data?.metadata?.display_name || author?.data?.metadata?.name || author?.data?.metadata?.username || genUserName(pubkey);
+  const avatar = author?.data?.metadata?.picture;
 
   return (
     <button
