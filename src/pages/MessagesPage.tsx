@@ -121,13 +121,27 @@ export default function MessagesPage() {
                   selectedConversation?.messages.map((message, idx) => {
                     const isFromMe = message.from === user.pubkey;
                     return (
-                      <div key={idx} className={`flex ${isFromMe ? 'justify-end' : 'justify-start'}`}>
+                      <div key={idx} className={`flex gap-2 ${isFromMe ? 'justify-end' : 'justify-start'}`}>
+                        {!isFromMe && (
+                          <Avatar className="h-8 w-8 flex-shrink-0 mt-1">
+                            <AvatarImage src={selectedAuthor?.data?.metadata?.picture} />
+                            <AvatarFallback>
+                              {(selectedAuthor?.data?.metadata?.display_name || selectedAuthor?.data?.metadata?.name || "U")[0]?.toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                        )}
                         <div className={`max-w-[70%] rounded-lg px-4 py-2 ${isFromMe ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
                           <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
                           <p className={`text-xs mt-1 ${isFromMe ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
                             {new Date(message.timestamp).toLocaleTimeString()}
                           </p>
                         </div>
+                        {isFromMe && (
+                          <Avatar className="h-8 w-8 flex-shrink-0 mt-1">
+                            <AvatarImage src={user.picture} />
+                            <AvatarFallback>{(user.name || "You")[0]?.toUpperCase()}</AvatarFallback>
+                          </Avatar>
+                        )}
                       </div>
                     );
                   })
