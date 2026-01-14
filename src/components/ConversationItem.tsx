@@ -6,7 +6,7 @@ interface ConversationItemProps {
   pubkey: string;
   lastMessage?: {
     timestamp: number;
-    decryptedContent?: string;
+    content?: string;
   };
   isSelected: boolean;
   onClick: () => void;
@@ -39,7 +39,7 @@ export function ConversationItem({ pubkey, lastMessage, isSelected, onClick }: C
         </div>
         {lastMessage && (
           <p className="text-sm text-muted-foreground truncate">
-            {lastMessage.decryptedContent || 'Message...'}
+            {lastMessage.content || 'Message...'}
           </p>
         )}
       </div>
