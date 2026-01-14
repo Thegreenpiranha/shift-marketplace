@@ -119,7 +119,7 @@ export default function MessagesPage() {
                   </div>
                 ) : (
                   selectedConversation?.messages.map((message, idx) => {
-                    const isFromMe = message.pubkey === user.pubkey;
+                    const isFromMe = message.from === user.pubkey;
                     return (
                       <div key={idx} className={`flex ${isFromMe ? 'justify-end' : 'justify-start'}`}>
                         <div className={`max-w-[70%] rounded-lg px-4 py-2 ${isFromMe ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
