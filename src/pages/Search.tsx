@@ -26,6 +26,7 @@ export default function Search() {
   const [location, setLocation] = useState(searchParams.get('location') || '');
   const [minPrice, setMinPrice] = useState(searchParams.get('minPrice') || '');
   const [maxPrice, setMaxPrice] = useState(searchParams.get('maxPrice') || '');
+  const [sortBy, setSortBy] = useState(searchParams.get("sortBy") || "newest");
 
   const { data: listings, isLoading } = useListings({
     search: searchQuery,
@@ -36,6 +37,19 @@ export default function Search() {
     status: 'active',
   });
 
+  // Sort listings
+  const sortedListings = listings ? [...listings].sort((a, b) => {
+    switch (sortBy) {
+      case "price-low":
+        return a.price - b.price;
+      case "price-high":
+        return b.price - a.price;
+      case "newest":
+      default:
+        return b.publishedAt - a.publishedAt;
+    }
+  }) : [];
+
   useEffect(() => {
     const params = new URLSearchParams();
     if (searchQuery) params.set('q', searchQuery);
@@ -43,6 +57,7 @@ export default function Search() {
     if (location) params.set('location', location);
     if (minPrice) params.set('minPrice', minPrice);
     if (maxPrice) params.set('maxPrice', maxPrice);
+    if (sortBy) params.set("sortBy", sortBy);
     setSearchParams(params, { replace: true });
   }, [searchQuery, category, location, minPrice, maxPrice, setSearchParams]);
 
@@ -179,12 +194,25 @@ export default function Search() {
               <p className="text-sm text-muted-foreground">
                 {isLoading ? (
                   'Searching...'
-                ) : listings ? (
-                  `${listings.length} ${listings.length === 1 ? 'result' : 'results'} found`
+                ) : sortedListings.length > 0 ? (
+                  `${sortedListings.length} ${sortedListings.length === 1 ? 'result' : 'results'} found`
                 ) : (
                   'No results'
                 )}
               </p>
+              <div className="flex items-center gap-2">
+                <Label className="text-sm">Sort:</Label>
+                <Select value={sortBy} onValueChange={setSortBy}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="newest">Newest First</SelectItem>
+                    <SelectItem value="price-low">Price: Low to High</SelectItem>
+                    <SelectItem value="price-high">Price: High to Low</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             {/* Listings Grid */}
@@ -205,9 +233,9 @@ export default function Search() {
                   </Card>
                 ))}
               </div>
-            ) : listings && listings.length > 0 ? (
+            ) : sortedListings.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {listings.map((listing) => (
+                {sortedListings.map((listing) => (
                   <Link key={listing.id} to={`/listing/${listing.id}`}>
                     <Card className="hover:shadow-xl transition-shadow h-full">
                       <CardHeader className="p-0">
