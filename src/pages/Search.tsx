@@ -1,4 +1,5 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
+import React from 'react';
 import { useDebounce } from '@/lib/useDebounce';
 import { Header } from '@/components/Header';
 import { Link, useSearchParams } from 'react-router-dom';
@@ -18,6 +19,53 @@ import {
 import { Label } from '@/components/ui/label';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { useListings } from '@/hooks/useListings';
+// Separate component to prevent re-renders
+const FilterInputs = React.memo(({
+  category, setCategory,
+  location, setLocation,
+  minPrice, setMinPrice,
+  maxPrice, setMaxPrice,
+  activeFiltersCount, clearFilters
+}: {
+  category: string; setCategory: (v: string) => void;
+  location: string; setLocation: (v: string) => void;
+  minPrice: string; setMinPrice: (v: string) => void;
+  maxPrice: string; setMaxPrice: (v: string) => void;
+  activeFiltersCount: number; clearFilters: () => void;
+}) => (
+  <div className="space-y-6">
+    <div className="space-y-2">
+      <Label>Category</Label>
+      <Select value={category} onValueChange={setCategory}>
+        <SelectTrigger><SelectValue placeholder="All Categories" /></SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All Categories</SelectItem>
+          {CATEGORIES.map((cat) => (
+            <SelectItem key={cat.id} value={cat.id}>{cat.icon} {cat.label}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+    <div className="space-y-2">
+      <Label>Location</Label>
+      <Input placeholder="City or postcode..." value={location} onChange={(e) => setLocation(e.target.value)} />
+    </div>
+    <div className="space-y-2">
+      <Label>Price Range</Label>
+      <div className="flex gap-2">
+        <Input type="number" placeholder="Min £" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} />
+        <Input type="number" placeholder="Max £" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} />
+      </div>
+    </div>
+    {activeFiltersCount > 0 && (
+      <Button variant="outline" onClick={clearFilters} className="w-full">
+        <X className="h-4 w-4 mr-2" />Clear Filters
+      </Button>
+    )}
+  </div>
+));
+FilterInputs.displayName = "FilterInputs";
+
 import { CATEGORIES, formatPrice } from '@/types/marketplace';
 
 export default function Search() {
@@ -79,61 +127,6 @@ export default function Search() {
     setMaxPrice('');
   };
 
-  const activeFiltersCount = [category && category !== 'all' ? category : '', location, minPrice, maxPrice].filter(Boolean).length;
-
-  const FiltersContent = () => (
-    <div className="space-y-6">
-      <div className="space-y-2">
-        <Label>Category</Label>
-        <Select value={category} onValueChange={setCategory}>
-          <SelectTrigger>
-            <SelectValue placeholder="All Categories" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Categories</SelectItem>
-            {CATEGORIES.map((cat) => (
-              <SelectItem key={cat.id} value={cat.id}>
-                {cat.icon} {cat.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="space-y-2">
-        <Label>Location</Label>
-        <Input
-          placeholder="City or postcode..."
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label>Price Range</Label>
-        <div className="flex gap-2">
-          <Input
-            type="number"
-            placeholder="Min £"
-            value={minPrice}
-            onChange={(e) => setMinPrice(e.target.value)}
-          />
-          <Input
-            type="number"
-            placeholder="Max £"
-            value={maxPrice}
-            onChange={(e) => setMaxPrice(e.target.value)}
-          />
-        </div>
-      </div>
-
-      {activeFiltersCount > 0 && (
-        <Button variant="outline" onClick={clearFilters} className="w-full">
-          <X className="h-4 w-4 mr-2" />
-          Clear Filters
-        </Button>
-      )}
-    </div>);
 
   return (
     <div className="min-h-screen bg-background">
@@ -149,7 +142,7 @@ export default function Search() {
                 <h3 className="font-semibold">Filters</h3>
               </CardHeader>
               <CardContent>
-                <FiltersContent />
+                <FilterInputs category={category} setCategory={setCategory} location={location} setLocation={setLocation} minPrice={minPrice} setMinPrice={setMinPrice} maxPrice={maxPrice} setMaxPrice={setMaxPrice} activeFiltersCount={activeFiltersCount} clearFilters={clearFilters} />
               </CardContent>
             </Card>
           </aside>
@@ -187,7 +180,7 @@ export default function Search() {
                       <SheetTitle>Filters</SheetTitle>
                     </SheetHeader>
                     <div className="mt-6">
-                      <FiltersContent />
+                      <FilterInputs category={category} setCategory={setCategory} location={location} setLocation={setLocation} minPrice={minPrice} setMinPrice={setMinPrice} maxPrice={maxPrice} setMaxPrice={setMaxPrice} activeFiltersCount={activeFiltersCount} clearFilters={clearFilters} />
                     </div>
                   </SheetContent>
                 </Sheet>
