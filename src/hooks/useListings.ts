@@ -44,7 +44,6 @@ export function useListings(filters: ListingsFilters = {}) {
         .filter((listing): listing is ListingData => listing !== null);
       
       // Filter to UK-based listings by default (unless location filter specified)
-      if (!filters.location) {
         const isUKListing = (l: ListingData) => {
           const loc = l.location?.toLowerCase() || "";
           return (
@@ -58,7 +57,6 @@ export function useListings(filters: ListingsFilters = {}) {
           );
         };
         listings = listings.filter(isUKListing);
-      }
 
       // Apply client-side filters
       if (filters.status) {

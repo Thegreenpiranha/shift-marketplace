@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useDebounce } from '@/lib/useDebounce';
 import { Header } from '@/components/Header';
 import { Link, useSearchParams } from 'react-router-dom';
@@ -81,7 +81,7 @@ export default function Search() {
 
   const activeFiltersCount = [category && category !== 'all' ? category : '', location, minPrice, maxPrice].filter(Boolean).length;
 
-  const FiltersContent = () => (
+  const FiltersContent = () => () => (
     <div className="space-y-6">
       <div className="space-y-2">
         <Label>Category</Label>
@@ -134,7 +134,7 @@ export default function Search() {
         </Button>
       )}
     </div>
-  );
+  , [category, location, minPrice, maxPrice, activeFiltersCount, setCategory, setLocation, setMinPrice, setMaxPrice, clearFilters]);
 
   return (
     <div className="min-h-screen bg-background">
