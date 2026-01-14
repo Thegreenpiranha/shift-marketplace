@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useCurrentUser } from './useCurrentUser';
 
 export interface Message {
@@ -21,7 +21,7 @@ export function useInAppMessages() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const loadConversations = async () => {
+  const loadConversations = useCallback(async () => {
     if (!user) return;
     
     try {
@@ -57,19 +57,19 @@ export function useInAppMessages() {
     } catch (error) {
       console.error('Failed to load messages:', error);
     }
-  };
+  }, [user]);
 
   // Load messages on mount
   useEffect(() => {
     setIsLoading(true);
     loadConversations().finally(() => setIsLoading(false));
-  }, [user]);
+  }, [loadConversations]);
 
   // Poll for new messages every 3 seconds
   useEffect(() => {
     const interval = setInterval(loadConversations, 3000);
     return () => clearInterval(interval);
-  }, [user]);
+  }, [loadConversations]);
 
   const sendMessage = async (to: string, content: string) => {
     if (!user) return;
@@ -85,7 +85,7 @@ export function useInAppMessages() {
         })
       });
       
-      // Reload conversations after sending
+      // Immediately reload to show sent message
       await loadConversations();
     } catch (error) {
       console.error('Failed to send message:', error);
