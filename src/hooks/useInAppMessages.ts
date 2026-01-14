@@ -19,20 +19,18 @@ export interface Conversation {
 export function useInAppMessages() {
   const { user } = useCurrentUser();
   const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Load messages from localStorage
-  useEffect(() => {
+  const loadConversations = async () => {
     if (!user) return;
     
-    const stored = localStorage.getItem('shift:messages');
-    if (stored) {
-      const allMessages: Message[] = JSON.parse(stored);
-      // Filter messages for current user
-      const userMessages = allMessages.filter(
-        m => m.from === user.pubkey || m.to === user.pubkey
-      );
+    try {
+      const response = await fetch(`/api/messages?pubkey=${user.pubkey}`);
+      const data = await response.json();
       
-      // Group into conversations
+      const userMessages: Message[] = data.messages || [];
+      
+      // Group into conversations by other party
       const convMap = new Map<string, Message[]>();
       userMessages.forEach(msg => {
         const otherPubkey = msg.from === user.pubkey ? msg.to : msg.from;
@@ -56,49 +54,47 @@ export function useInAppMessages() {
       convs.sort((a, b) => (b.lastMessage?.timestamp || 0) - (a.lastMessage?.timestamp || 0));
       
       setConversations(convs);
+    } catch (error) {
+      console.error('Failed to load messages:', error);
     }
+  };
+
+  // Load messages on mount
+  useEffect(() => {
+    setIsLoading(true);
+    loadConversations().finally(() => setIsLoading(false));
   }, [user]);
 
-  const sendMessage = (to: string, content: string) => {
+  // Poll for new messages every 3 seconds
+  useEffect(() => {
+    const interval = setInterval(loadConversations, 3000);
+    return () => clearInterval(interval);
+  }, [user]);
+
+  const sendMessage = async (to: string, content: string) => {
     if (!user) return;
     
-    const message: Message = {
-      id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
-      from: user.pubkey,
-      to,
-      content,
-      timestamp: Date.now(),
-      read: false
-    };
-    
-    // Save to localStorage
-    const stored = localStorage.getItem('shift:messages');
-    const allMessages: Message[] = stored ? JSON.parse(stored) : [];
-    allMessages.push(message);
-    localStorage.setItem('shift:messages', JSON.stringify(allMessages));
-    
-    // Update conversations
-    const otherPubkey = to;
-    const updated = [...conversations];
-    const existingIdx = updated.findIndex(c => c.pubkey === otherPubkey);
-    
-    if (existingIdx >= 0) {
-      updated[existingIdx].messages.push(message);
-      updated[existingIdx].lastMessage = message;
-    } else {
-      updated.push({
-        pubkey: otherPubkey,
-        messages: [message],
-        lastMessage: message
+    try {
+      await fetch('/api/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          from: user.pubkey,
+          to,
+          content
+        })
       });
+      
+      // Reload conversations after sending
+      await loadConversations();
+    } catch (error) {
+      console.error('Failed to send message:', error);
     }
-    
-    setConversations(updated);
   };
 
   return {
     conversations,
     sendMessage,
-    isLoading: false
+    isLoading
   };
 }
