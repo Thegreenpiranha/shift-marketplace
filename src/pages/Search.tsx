@@ -81,7 +81,7 @@ export default function Search() {
 
   const activeFiltersCount = [category && category !== 'all' ? category : '', location, minPrice, maxPrice].filter(Boolean).length;
 
-  const FiltersContent = () => () => (
+  const FiltersContent = () => (
     <div className="space-y-6">
       <div className="space-y-2">
         <Label>Category</Label>
