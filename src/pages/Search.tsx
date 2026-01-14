@@ -133,8 +133,7 @@ export default function Search() {
           Clear Filters
         </Button>
       )}
-    </div>
-  , [category, location, minPrice, maxPrice, activeFiltersCount, setCategory, setLocation, setMinPrice, setMaxPrice, clearFilters]);
+    </div>);
 
   return (
     <div className="min-h-screen bg-background">
