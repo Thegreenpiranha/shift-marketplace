@@ -37,9 +37,9 @@ export default function Search() {
   const { data: listings, isLoading } = useListings({
     search: searchQuery,
     category: category && category !== 'all' ? category : undefined,
-    location: location || undefined,
-    minPrice: minPrice ? parseFloat(minPrice) : undefined,
-    maxPrice: maxPrice ? parseFloat(maxPrice) : undefined,
+    location: debouncedLocation || undefined,
+    minPrice: debouncedMinPrice ? parseFloat(debouncedMinPrice) : undefined,
+    maxPrice: debouncedMaxPrice ? parseFloat(debouncedMaxPrice) : undefined,
     status: 'active',
   });
 
