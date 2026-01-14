@@ -97,7 +97,7 @@ export default function MessagesPage() {
         </div>
 
         <div className="flex-1 flex flex-col">
-          {selectedPubkey && selectedConversation ? (
+          {selectedPubkey ? (
             <>
               <div className="border-b p-4 flex items-center gap-3">
                 <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setSelectedPubkey(null)}>
@@ -107,13 +107,13 @@ export default function MessagesPage() {
               </div>
 
               <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                {selectedConversation.messages.length === 0 ? (
+                {!selectedConversation || selectedConversation.messages.length === 0 ? (
                   <div className="text-center text-muted-foreground py-8">
                     <MessageCircle className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
                     <p>No messages yet. Start the conversation!</p>
                   </div>
                 ) : (
-                  selectedConversation.messages.map((message, idx) => {
+                  selectedConversation?.messages.map((message, idx) => {
                     const isFromMe = message.pubkey === user.pubkey;
                     return (
                       <div key={idx} className={`flex ${isFromMe ? 'justify-end' : 'justify-start'}`}>
