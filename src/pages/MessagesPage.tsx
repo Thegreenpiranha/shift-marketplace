@@ -103,10 +103,10 @@ export default function MessagesPage() {
                 </Button>
                 <Avatar>
                   <AvatarImage src={selectedAuthor?.data?.metadata?.picture} />
-                  <AvatarFallback>{(selectedAuthor?.data?.metadata?.name || "User")[0]?.toUpperCase()}</AvatarFallback>
+                  <AvatarFallback>{(selectedAuthor?.data?.metadata?.display_name || selectedAuthor?.data?.metadata?.name || selectedAuthor?.data?.metadata?.username || "User")[0]?.toUpperCase()}</AvatarFallback>
                 </Avatar>
                 <div>
-                  <h3 className="font-semibold">{selectedAuthor?.data?.metadata?.name || "Anonymous"}</h3>
+                  <h3 className="font-semibold">{selectedAuthor?.data?.metadata?.display_name || selectedAuthor?.data?.metadata?.name || selectedAuthor?.data?.metadata?.username || "Anonymous"}</h3>
                   <p className="text-xs text-muted-foreground">Active on Shift</p>
                 </div>
               </div>
