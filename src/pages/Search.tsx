@@ -65,7 +65,7 @@ export default function Search() {
     if (debouncedMaxPrice) params.set("maxPrice", debouncedMaxPrice);
     if (sortBy) params.set("sortBy", sortBy);
     setSearchParams(params, { replace: true });
-  }, [searchQuery, category, location, minPrice, maxPrice, setSearchParams]);
+  }, [searchQuery, category, debouncedLocation, debouncedMinPrice, debouncedMaxPrice, sortBy]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
