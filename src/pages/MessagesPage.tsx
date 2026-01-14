@@ -5,11 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { useDMContext } from '@/hooks/useDMContext';
+import { useInAppMessages } from '@/hooks/useInAppMessages';
 import { useAuthor } from '@/hooks/useAuthor';
 import { EnhancedLoginArea } from '@/components/auth/EnhancedLoginArea';
 import { MessageCircle, Send, ArrowLeft } from 'lucide-react';
-import { MESSAGE_PROTOCOL } from '@/lib/dmConstants';
 import { ConversationItem } from '@/components/ConversationItem';
 
 export default function MessagesPage() {
@@ -17,7 +16,7 @@ export default function MessagesPage() {
   const [searchParams] = useSearchParams();
   const recipientParam = searchParams.get('recipient');
 
-  const { conversations, sendMessage, isLoading } = useDMContext();
+  const { conversations, sendMessage, isLoading } = useInAppMessages();
   const [selectedPubkey, setSelectedPubkey] = useState<string | null>(recipientParam);
   const [messageText, setMessageText] = useState('');
   const [isSending, setIsSending] = useState(false);
@@ -40,7 +39,7 @@ export default function MessagesPage() {
       await sendMessage({
         recipientPubkey: selectedPubkey,
         content: messageText.trim(),
-        protocol: MESSAGE_PROTOCOL.NIP17
+        // no protocol needed
       });
       setMessageText('');
     } catch (error) {
