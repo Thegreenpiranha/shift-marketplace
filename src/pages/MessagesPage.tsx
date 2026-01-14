@@ -4,12 +4,14 @@ import { Header } from '@/components/Header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useInAppMessages } from '@/hooks/useInAppMessages';
 import { useAuthor } from '@/hooks/useAuthor';
 import { EnhancedLoginArea } from '@/components/auth/EnhancedLoginArea';
 import { MessageCircle, Send, ArrowLeft } from 'lucide-react';
 import { ConversationItem } from '@/components/ConversationItem';
+import { genUserName } from '@/lib/genUserName';
 
 export default function MessagesPage() {
   const { user } = useCurrentUser();
@@ -36,14 +38,10 @@ export default function MessagesPage() {
 
     setIsSending(true);
     try {
-      await sendMessage({
-        recipientPubkey: selectedPubkey,
-        content: messageText.trim(),
-        // no protocol needed
-      });
-      setMessageText('');
+      await sendMessage(selectedPubkey, messageText.trim());
+      setMessageText("");
     } catch (error) {
-      console.error('Failed to send message:', error);
+      console.error("Failed to send message:", error);
     } finally {
       setIsSending(false);
     }
@@ -103,7 +101,14 @@ export default function MessagesPage() {
                 <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setSelectedPubkey(null)}>
                   <ArrowLeft className="h-5 w-5" />
                 </Button>
-                <h3 className="font-semibold">Chat</h3>
+                <Avatar>
+                  <AvatarImage src={selectedAuthor?.picture} />
+                  <AvatarFallback>{(selectedAuthor?.name || "User")[0]?.toUpperCase()}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <h3 className="font-semibold">{selectedAuthor?.name || "Anonymous"}</h3>
+                  <p className="text-xs text-muted-foreground">Active on Shift</p>
+                </div>
               </div>
 
               <div className="flex-1 overflow-y-auto p-4 space-y-4">
