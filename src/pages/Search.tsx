@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useDebounce } from '@/lib/useDebounce';
 import { Header } from '@/components/Header';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Search as SearchIcon, SlidersHorizontal, X } from 'lucide-react';
@@ -27,6 +28,11 @@ export default function Search() {
   const [minPrice, setMinPrice] = useState(searchParams.get('minPrice') || '');
   const [maxPrice, setMaxPrice] = useState(searchParams.get('maxPrice') || '');
   const [sortBy, setSortBy] = useState(searchParams.get("sortBy") || "newest");
+  
+  // Debounce filter values for URL updates
+  const debouncedLocation = useDebounce(location, 500);
+  const debouncedMinPrice = useDebounce(minPrice, 500);
+  const debouncedMaxPrice = useDebounce(maxPrice, 500);
 
   const { data: listings, isLoading } = useListings({
     search: searchQuery,
@@ -54,9 +60,9 @@ export default function Search() {
     const params = new URLSearchParams();
     if (searchQuery) params.set('q', searchQuery);
     if (category && category !== 'all') params.set('category', category);
-    if (location) params.set('location', location);
-    if (minPrice) params.set('minPrice', minPrice);
-    if (maxPrice) params.set('maxPrice', maxPrice);
+    if (debouncedLocation) params.set("location", debouncedLocation);
+    if (debouncedMinPrice) params.set("minPrice", debouncedMinPrice);
+    if (debouncedMaxPrice) params.set("maxPrice", debouncedMaxPrice);
     if (sortBy) params.set("sortBy", sortBy);
     setSearchParams(params, { replace: true });
   }, [searchQuery, category, location, minPrice, maxPrice, setSearchParams]);
