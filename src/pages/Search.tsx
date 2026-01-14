@@ -77,6 +77,8 @@ export default function Search() {
   const [maxPrice, setMaxPrice] = useState(searchParams.get('maxPrice') || '');
   const [sortBy, setSortBy] = useState(searchParams.get("sortBy") || "newest");
   
+  const activeFiltersCount = [category && category !== "all" ? category : "", location, minPrice, maxPrice].filter(Boolean).length;
+  
   // Debounce filter values for URL updates
   const debouncedLocation = useDebounce(location, 500);
   const debouncedMinPrice = useDebounce(minPrice, 500);
