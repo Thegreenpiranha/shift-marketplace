@@ -109,11 +109,13 @@ export default function Settings() {
                   Manage your Shift profile
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-4">
                 <p className="text-sm text-muted-foreground">
-                  Your profile is managed through your Nostr identity. You can update your name,
-                  avatar, and bio using any Nostr client.
+                  Update your display name, avatar, bio, and Shift-specific seller information.
                 </p>
+                <Button asChild>
+                  <Link to="/profile/edit">Edit Profile</Link>
+                </Button>
               </CardContent>
             </Card>
             <Card>
