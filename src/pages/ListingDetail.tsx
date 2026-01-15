@@ -280,7 +280,7 @@ export default function ListingDetail() {
                 <CardTitle>Seller Information</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex items-center gap-3">
+                <Link to={`/profile/${listing.sellerPubkey}`} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
                   <Avatar className="h-12 w-12">
                     <AvatarImage src={sellerAvatar} />
                     <AvatarFallback>{sellerName[0]?.toUpperCase()}</AvatarFallback>
@@ -300,7 +300,7 @@ export default function ListingDetail() {
                       </div>
                     )}
                   </div>
-                </div>
+                </Link>
 
                 <Separator />
 

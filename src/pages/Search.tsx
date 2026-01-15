@@ -275,16 +275,29 @@ export default function Search() {
             ) : (
               <Card className="border-dashed">
                 <CardContent className="py-16 text-center">
-                  <SearchIcon className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                  <h3 className="text-lg font-semibold mb-2">No listings found</h3>
-                  <p className="text-muted-foreground mb-4">
-                    Try adjusting your search or filters
-                  </p>
-                  {activeFiltersCount > 0 && (
-                    <Button variant="outline" onClick={clearFilters}>
-                      Clear Filters
-                    </Button>
-                  )}
+                  <div className="max-w-md mx-auto">
+                    <SearchIcon className="h-16 w-16 mx-auto mb-4 text-muted-foreground opacity-50" />
+                    <h3 className="text-xl font-semibold mb-2">No listings found</h3>
+                    <p className="text-muted-foreground mb-6">
+                      {activeFiltersCount > 0 
+                        ? "Try adjusting your filters to see more results"
+                        : "Be the first to list an item in this category!"
+                      }
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                      {activeFiltersCount > 0 && (
+                        <Button variant="outline" onClick={clearFilters}>
+                          <X className="h-4 w-4 mr-2" />
+                          Clear All Filters
+                        </Button>
+                      )}
+                      <Link to="/create-listing">
+                        <Button>
+                          Create Listing
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             )}

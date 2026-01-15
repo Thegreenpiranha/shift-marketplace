@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Header } from '@/components/Header';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -127,14 +127,19 @@ export default function MyListings() {
             ) : (
               <Card className="border-dashed">
                 <CardContent className="py-16 text-center">
-                  <PlusCircle className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                  <h3 className="text-lg font-semibold mb-2">No active listings</h3>
-                  <p className="text-muted-foreground mb-4">
-                    Create your first listing to start selling
-                  </p>
-                  <Link to="/create-listing">
-                    <Button>Create Listing</Button>
-                  </Link>
+                  <div className="max-w-md mx-auto">
+                    <PlusCircle className="h-16 w-16 mx-auto mb-4 text-muted-foreground opacity-50" />
+                    <h3 className="text-xl font-semibold mb-2">No active listings yet</h3>
+                    <p className="text-muted-foreground mb-6">
+                      List your first item and start earning Bitcoin!
+                    </p>
+                    <Link to="/create-listing">
+                      <Button size="lg">
+                        <PlusCircle className="h-5 w-5 mr-2" />
+                        Create Your First Listing
+                      </Button>
+                    </Link>
+                  </div>
                 </CardContent>
               </Card>
             )}
@@ -191,7 +196,13 @@ export default function MyListings() {
             ) : (
               <Card className="border-dashed">
                 <CardContent className="py-16 text-center">
-                  <p className="text-muted-foreground">No sold listings yet</p>
+                  <div className="max-w-md mx-auto">
+                    <CheckCircle className="h-16 w-16 mx-auto mb-4 text-muted-foreground opacity-50" />
+                    <h3 className="text-xl font-semibold mb-2">No sales yet</h3>
+                    <p className="text-muted-foreground">
+                      Your completed sales will appear here
+                    </p>
+                  </div>
                 </CardContent>
               </Card>
             )}

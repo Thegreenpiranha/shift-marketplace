@@ -105,6 +105,7 @@ export default function MessagesPage() {
                 <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setSelectedPubkey(null)}>
                   <ArrowLeft className="h-5 w-5" />
                 </Button>
+                <Link to={`/profile/${selectedPubkey}`} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
                 <Avatar>
                   <AvatarImage src={selectedAuthor?.data?.metadata?.picture} />
                   <AvatarFallback>{(selectedAuthor?.data?.metadata?.display_name || selectedAuthor?.data?.metadata?.name || selectedAuthor?.data?.metadata?.username || "User")[0]?.toUpperCase()}</AvatarFallback>
@@ -113,7 +114,8 @@ export default function MessagesPage() {
                   <h3 className="font-semibold">{selectedAuthor?.data?.metadata?.display_name || selectedAuthor?.data?.metadata?.name || selectedAuthor?.data?.metadata?.username || "Anonymous"}</h3>
                   <p className="text-xs text-muted-foreground">Active on Shift</p>
               </div>
-                </div>
+                </Link>
+              </div>
               <div className="flex-1 overflow-y-auto p-4 space-y-4">
                 {!selectedConversation || selectedConversation.messages.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-full py-12">
