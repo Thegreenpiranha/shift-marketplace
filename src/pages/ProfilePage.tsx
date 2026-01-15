@@ -7,6 +7,8 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useAuthor } from '@/hooks/useAuthor';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { useListings } from '@/hooks/useListings';
+import { useSellerReputation, useSellerReviews } from '@/hooks/useSellerReputation';
 import { 
   MessageCircle, 
   Share2, 
@@ -15,9 +17,10 @@ import {
   MapPin, 
   Calendar,
   ExternalLink,
-  Edit
+  Edit,
+  Package
 } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 export default function ProfilePage() {
   const { pubkey } = useParams<{ pubkey: string }>();
@@ -25,19 +28,18 @@ export default function ProfilePage() {
   const author = useAuthor(pubkey);
   const navigate = useNavigate();
   
-  const [activeListings, setActiveListings] = useState<any[]>([]);
+  // Fetch seller's active listings
+  const { data: allListings = [] } = useListings({ sellerPubkey: pubkey });
+  const activeListings = allListings.filter(l => l.status === 'active');
+  
+  // Fetch reputation and reviews
+  const { data: reputation } = useSellerReputation(pubkey);
+  const { data: reviews = [] } = useSellerReviews(pubkey, 10);
+  
   const [isFavorited, setIsFavorited] = useState(false);
-  const [followersCount, setFollowersCount] = useState(0);
-  const [lastActive, setLastActive] = useState<Date | null>(null);
+  const [followersCount] = useState(0); // TODO: Implement followers
 
   const isOwnProfile = user?.pubkey === pubkey;
-
-  useEffect(() => {
-    // TODO: Fetch seller's active listings
-    // TODO: Fetch last active timestamp
-    // TODO: Check if current user has favorited this seller
-    // TODO: Fetch followers count
-  }, [pubkey]);
 
   const handleContactSeller = () => {
     navigate(`/messages?recipient=${pubkey}`);
@@ -66,6 +68,14 @@ export default function ProfilePage() {
     // TODO: API call to favorite/unfavorite seller
     setIsFavorited(!isFavorited);
   };
+
+  // Extract location from first listing or Nostr metadata
+  const userLocation = activeListings[0]?.location || author?.data?.metadata?.location || 'UK';
+  
+  // Calculate member since date (use first listing or default)
+  const memberSince = activeListings.length > 0 
+    ? new Date(Math.min(...allListings.map(l => l.publishedAt * 1000)))
+    : new Date();
 
   if (!pubkey) {
     return (
@@ -100,7 +110,7 @@ export default function ProfilePage() {
                 <div className="flex gap-2 w-full">
                   {isOwnProfile ? (
                     <Button variant="outline" className="flex-1" asChild>
-                      <Link to="/profile/edit">
+                      <Link to="/settings">
                         <Edit className="h-4 w-4 mr-2" />
                         Edit Profile
                       </Link>
@@ -141,10 +151,12 @@ export default function ProfilePage() {
                       </p>
                     )}
                   </div>
-                  <Badge variant="secondary" className="flex items-center gap-1">
-                    <Star className="h-3 w-3 fill-current text-yellow-500" />
-                    <span>4.8</span>
-                  </Badge>
+                  {reputation && reputation.totalReviews > 0 && (
+                    <Badge variant="secondary" className="flex items-center gap-1">
+                      <Star className="h-3 w-3 fill-current text-yellow-500" />
+                      <span>{reputation.averageRating.toFixed(1)}</span>
+                    </Badge>
+                  )}
                 </div>
 
                 {/* Stats */}
@@ -158,7 +170,7 @@ export default function ProfilePage() {
                     <p className="text-sm text-muted-foreground">Followers</p>
                   </div>
                   <div>
-                    <p className="text-2xl font-bold">24</p>
+                    <p className="text-2xl font-bold">{reputation?.totalReviews || 0}</p>
                     <p className="text-sm text-muted-foreground">Reviews</p>
                   </div>
                 </div>
@@ -167,18 +179,16 @@ export default function ProfilePage() {
                 <div className="space-y-2 text-sm text-muted-foreground">
                   <div className="flex items-center gap-2">
                     <MapPin className="h-4 w-4" />
-                    <span>London, UK</span>
+                    <span>{userLocation}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4" />
-                    <span>Member since January 2025</span>
+                    <span>Member since {memberSince.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}</span>
                   </div>
-                  {lastActive && (
-                    <div className="flex items-center gap-2">
-                      <span className="h-2 w-2 bg-green-500 rounded-full" />
-                      <span>Last active on Shift: {lastActive.toLocaleDateString()}</span>
-                    </div>
-                  )}
+                  <div className="flex items-center gap-2">
+                    <span className="h-2 w-2 bg-green-500 rounded-full" />
+                    <span>Active on Shift</span>
+                  </div>
                 </div>
 
                 {/* Bio */}
@@ -202,13 +212,50 @@ export default function ProfilePage() {
               </CardHeader>
               <CardContent>
                 {activeListings.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <p>No active listings at the moment</p>
+                  <div className="text-center py-12">
+                    <Package className="h-16 w-16 mx-auto text-muted-foreground opacity-50 mb-4" />
+                    <p className="text-muted-foreground mb-4">No active listings at the moment</p>
+                    {isOwnProfile && (
+                      <Button asChild>
+                        <Link to="/create-listing">Create Your First Listing</Link>
+                      </Button>
+                    )}
                   </div>
                 ) : (
-                  <div className="grid gap-4">
-                    {/* TODO: Map through listings */}
-                    <p className="text-muted-foreground">Listings will appear here</p>
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    {activeListings.slice(0, 6).map((listing) => (
+                      <Link
+                        key={listing.id}
+                        to={`/listing/${listing.id}`}
+                        className="group border rounded-lg overflow-hidden hover:shadow-md transition-shadow"
+                      >
+                        <div className="aspect-square bg-muted relative overflow-hidden">
+                          {listing.images[0] && (
+                            <img
+                              src={listing.images[0]}
+                              alt={listing.title}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                            />
+                          )}
+                        </div>
+                        <div className="p-3">
+                          <h3 className="font-semibold truncate group-hover:text-primary transition-colors">
+                            {listing.title}
+                          </h3>
+                          <p className="text-sm text-muted-foreground truncate">{listing.location}</p>
+                          <p className="font-bold mt-1">
+                            {listing.currency} {listing.price.toLocaleString()}
+                          </p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+                {activeListings.length > 6 && (
+                  <div className="mt-4 text-center">
+                    <Button variant="outline" asChild>
+                      <Link to={`/search?seller=${pubkey}`}>View All Listings</Link>
+                    </Button>
                   </div>
                 )}
               </CardContent>
@@ -217,12 +264,44 @@ export default function ProfilePage() {
             {/* Reviews */}
             <Card>
               <CardHeader>
-                <CardTitle>Reviews & Feedback</CardTitle>
+                <CardTitle>Reviews & Feedback ({reputation?.totalReviews || 0})</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-8 text-muted-foreground">
-                  <p>Reviews coming soon</p>
-                </div>
+                {reviews.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Star className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                    <p>No reviews yet</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {reviews.map((review) => (
+                      <div key={review.id} className="border-b pb-4 last:border-0">
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <div className="flex">
+                              {[...Array(5)].map((_, i) => (
+                                <Star
+                                  key={i}
+                                  className={`h-4 w-4 ${
+                                    i < review.rating
+                                      ? 'fill-yellow-400 text-yellow-400'
+                                      : 'text-muted-foreground'
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                          <span className="text-xs text-muted-foreground">
+                            {new Date(review.timestamp * 1000).toLocaleDateString()}
+                          </span>
+                        </div>
+                        {review.comment && (
+                          <p className="text-sm text-muted-foreground">{review.comment}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -269,15 +348,15 @@ export default function ProfilePage() {
               <CardContent className="space-y-3 text-sm">
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Verified Nostr</span>
-                  <Badge variant="secondary">✓</Badge>
+                  <Badge variant="secondary">{reputation?.isVerified ? '✓' : '—'}</Badge>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Response Time</span>
-                  <span className="font-medium">~2 hours</span>
+                  <span className="text-muted-foreground">Total Sales</span>
+                  <span className="font-medium">{allListings.filter(l => l.status === 'sold').length}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Completion Rate</span>
-                  <span className="font-medium">95%</span>
+                  <span className="text-muted-foreground">Active Listings</span>
+                  <span className="font-medium">{activeListings.length}</span>
                 </div>
               </CardContent>
             </Card>
