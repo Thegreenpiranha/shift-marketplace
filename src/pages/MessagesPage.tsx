@@ -73,9 +73,12 @@ export default function MessagesPage() {
           {isLoading ? (
             <div className="p-4 text-center text-muted-foreground">Loading...</div>
           ) : conversations.length === 0 ? (
-            <div className="p-6 text-center">
-              <MessageCircle className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
-              <p className="text-sm text-muted-foreground mb-4">No conversations yet</p>
+            <div className="p-8 text-center">
+              <MessageCircle className="h-16 w-16 mx-auto text-muted-foreground opacity-50 mb-4" />
+              <h3 className="font-semibold mb-2">No messages yet</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Find an item you like and contact the seller
+              </p>
               <Link to="/search">
                 <Button size="sm">Browse Listings</Button>
               </Link>
@@ -109,17 +112,17 @@ export default function MessagesPage() {
                 <div>
                   <h3 className="font-semibold">{selectedAuthor?.data?.metadata?.display_name || selectedAuthor?.data?.metadata?.name || selectedAuthor?.data?.metadata?.username || "Anonymous"}</h3>
                   <p className="text-xs text-muted-foreground">Active on Shift</p>
-                </div>
               </div>
-
+                </div>
               <div className="flex-1 overflow-y-auto p-4 space-y-4">
                 {!selectedConversation || selectedConversation.messages.length === 0 ? (
-                  <div className="text-center text-muted-foreground py-8">
-                    <MessageCircle className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
-                    <p>No messages yet. Start the conversation!</p>
+                  <div className="flex flex-col items-center justify-center h-full py-12">
+                    <MessageCircle className="h-16 w-16 text-muted-foreground opacity-50 mb-4" />
+                    <h3 className="font-semibold mb-2">No messages yet</h3>
+                    <p className="text-sm text-muted-foreground">Send a message to start the conversation</p>
                   </div>
                 ) : (
-                  selectedConversation?.messages.map((message, idx) => {
+                  selectedConversation?.messages.map((message) => {
                     const isFromMe = message.from === user.pubkey;
                     return (
                       <div key={idx} className={`flex gap-2 ${isFromMe ? 'justify-end' : 'justify-start'}`}>
