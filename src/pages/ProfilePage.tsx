@@ -110,7 +110,7 @@ export default function ProfilePage() {
                 <div className="flex gap-2 w-full">
                   {isOwnProfile ? (
                     <Button variant="outline" className="flex-1" asChild>
-                      <Link to="/settings">
+                      <Link to="/profile/edit">
                         <Edit className="h-4 w-4 mr-2" />
                         Edit Profile
                       </Link>
