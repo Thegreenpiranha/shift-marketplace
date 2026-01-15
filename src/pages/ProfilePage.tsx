@@ -35,6 +35,7 @@ export default function ProfilePage() {
   
   // Fetch reputation and reviews
   const { data: reputation } = useSellerReputation(pubkey);
+  const { data: reviews = [] } = useSellerReviews(pubkey, 10);
   const { data: isFavorited = false } = useIsFavorited(user?.pubkey, pubkey);
   const { data: followersCount = 0 } = useFollowerCount(pubkey);
   const addFavorite = useAddFavorite();
