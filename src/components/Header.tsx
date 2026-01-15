@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Menu } from 'lucide-react';
+import { Menu, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
@@ -25,6 +25,12 @@ export function Header() {
                   <Button variant="ghost">My Listings</Button>
                 </Link>
                 <Link to="/messages">
+                <Link to="/favorites">
+                  <Button variant="ghost">
+                    <Heart className="h-4 w-4 mr-2" />
+                    Favorites
+                  </Button>
+                </Link>
                   <Button variant="ghost">Messages</Button>
                 </Link>
                 <Link to="/settings">
@@ -56,6 +62,18 @@ export function Header() {
                       <Button variant="ghost" className="w-full justify-start">My Listings</Button>
                     </Link>
                     <Link to="/messages" className="w-full">
+                    <Link to="/favorites" className="w-full">
+                      <Button variant="ghost" className="w-full justify-start">
+                        <Heart className="h-4 w-4 mr-2" />
+                        Favorites
+                      </Button>
+                    </Link>
+                <Link to="/favorites">
+                  <Button variant="ghost">
+                    <Heart className="h-4 w-4 mr-2" />
+                    Favorites
+                  </Button>
+                </Link>
                       <Button variant="ghost" className="w-full justify-start">Messages</Button>
                     </Link>
                     <Link to="/settings" className="w-full">

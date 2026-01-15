@@ -9,6 +9,7 @@ import { useAuthor } from '@/hooks/useAuthor';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useListings } from '@/hooks/useListings';
 import { useSellerReputation, useSellerReviews } from '@/hooks/useSellerReputation';
+import { useIsFavorited, useAddFavorite, useRemoveFavorite, useFollowerCount } from '@/hooks/useFavorites';
 import { 
   MessageCircle, 
   Share2, 
@@ -34,10 +35,10 @@ export default function ProfilePage() {
   
   // Fetch reputation and reviews
   const { data: reputation } = useSellerReputation(pubkey);
-  const { data: reviews = [] } = useSellerReviews(pubkey, 10);
-  
-  const [isFavorited, setIsFavorited] = useState(false);
-  const [followersCount] = useState(0); // TODO: Implement followers
+  const { data: isFavorited = false } = useIsFavorited(user?.pubkey, pubkey);
+  const { data: followersCount = 0 } = useFollowerCount(pubkey);
+  const addFavorite = useAddFavorite();
+  const removeFavorite = useRemoveFavorite();
 
   const isOwnProfile = user?.pubkey === pubkey;
 
@@ -64,9 +65,18 @@ export default function ProfilePage() {
     }
   };
 
-  const handleToggleFavorite = () => {
-    // TODO: API call to favorite/unfavorite seller
-    setIsFavorited(!isFavorited);
+  const handleToggleFavorite = async () => {
+    if (!user || !pubkey) return;
+
+    try {
+      if (isFavorited) {
+        await removeFavorite.mutateAsync({ userId: user.pubkey, sellerPubkey: pubkey });
+      } else {
+        await addFavorite.mutateAsync({ userId: user.pubkey, sellerPubkey: pubkey });
+      }
+    } catch (error) {
+      console.error('Failed to toggle favorite:', error);
+    }
   };
 
   // Extract location from first listing or Nostr metadata
