@@ -59,12 +59,11 @@ export default function Home() {
             Buy and Sell.
             <br />
             <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Powered by Nostr & Sats.
+              Using Nostr & Sats.
             </span>
           </h2>
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            A UK-focused Bitcoin marketplace with instant Lightning payments and escrow protection.
-            No middlemen. No fees beyond 2%.
+            A marketplace with instant Lightning payments.
           </p>
 
           {/* Search Bar */}
