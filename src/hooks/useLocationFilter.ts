@@ -19,31 +19,31 @@ export const AVAILABLE_LOCATIONS: LocationOption[] = [
     code: 'GB',
     name: 'United Kingdom',
     flag: '🇬🇧',
-    keywords: ['uk', 'united kingdom', 'england', 'scotland', 'wales', 'northern ireland', 'britain', 'great britain'],
+    keywords: ['uk', 'united kingdom', 'england', 'scotland', 'wales', 'northern ireland', 'britain', 'great britain', 'london', 'manchester', 'birmingham', 'glasgow', 'liverpool', 'leeds', 'bristol', 'edinburgh', 'cardiff', 'belfast'],
   },
   {
     code: 'US',
     name: 'United States',
     flag: '🇺🇸',
-    keywords: ['us', 'usa', 'united states', 'america'],
+    keywords: ['us', 'usa', 'united states', 'america', 'new york', 'california', 'texas', 'florida'],
   },
   {
     code: 'EU',
     name: 'European Union',
     flag: '🇪🇺',
-    keywords: ['eu', 'europe', 'germany', 'france', 'spain', 'italy', 'netherlands', 'belgium', 'austria', 'portugal', 'greece', 'ireland', 'denmark', 'sweden', 'finland'],
+    keywords: ['eu', 'europe', 'germany', 'france', 'spain', 'italy', 'netherlands', 'belgium', 'austria', 'portugal', 'greece', 'ireland', 'denmark', 'sweden', 'finland', 'berlin', 'paris', 'madrid', 'rome', 'amsterdam', 'brussels'],
   },
   {
     code: 'CA',
     name: 'Canada',
     flag: '🇨🇦',
-    keywords: ['canada', 'canadian'],
+    keywords: ['canada', 'canadian', 'toronto', 'vancouver', 'montreal'],
   },
   {
     code: 'AU',
     name: 'Australia',
     flag: '🇦🇺',
-    keywords: ['australia', 'australian', 'sydney', 'melbourne', 'brisbane'],
+    keywords: ['australia', 'australian', 'sydney', 'melbourne', 'brisbane', 'perth'],
   },
 ];
 
@@ -81,7 +81,12 @@ export function isListingInLocation(listingLocation: string, listingCurrency: st
     return true; // If location not found, show everything
   }
 
-  const normalizedLocation = listingLocation.toLowerCase();
+  // If listing has no location, don't show it (unless All Locations selected)
+  if (!listingLocation || listingLocation.trim() === '') {
+    return false;
+  }
+
+  const normalizedLocation = listingLocation.toLowerCase().trim();
   
   // Check if listing location matches any of the keywords
   const matchesKeywords = location.keywords.some(keyword => 
@@ -91,6 +96,18 @@ export function isListingInLocation(listingLocation: string, listingCurrency: st
   // For UK, also check if currency is GBP
   if (selectedLocationCode === 'GB') {
     return matchesKeywords || listingCurrency === 'GBP';
+  }
+
+  // For other locations, also do a partial match on the country code
+  // e.g., if location is "Berlin, DE" it should match EU
+  if (selectedLocationCode === 'US' && normalizedLocation.includes('us')) {
+    return true;
+  }
+  if (selectedLocationCode === 'CA' && normalizedLocation.includes('ca')) {
+    return true;
+  }
+  if (selectedLocationCode === 'AU' && normalizedLocation.includes('au')) {
+    return true;
   }
 
   return matchesKeywords;
