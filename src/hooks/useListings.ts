@@ -18,7 +18,7 @@ export function useListings(filters: ListingsFilters = {}) {
   const { selectedLocation } = useLocationFilter();
 
   return useQuery({
-    queryKey: ['listings', filters],
+    queryKey: ['listings', filters, selectedLocation],
     queryFn: async (c) => {
       const signal = AbortSignal.any([c.signal, AbortSignal.timeout(3000)]);
 
