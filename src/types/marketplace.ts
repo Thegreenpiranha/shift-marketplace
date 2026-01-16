@@ -46,6 +46,19 @@ export const CATEGORIES = [
 
 export function parseListingEvent(event: NostrEvent): ListingData | null {
   try {
+    // Debug: Log what we receive
+    if (!event) {
+      console.error('Event is null/undefined');
+      return null;
+    }
+    if (!event.tags) {
+      console.error('Event has no tags property:', event);
+      return null;
+    }
+    if (!Array.isArray(event.tags)) {
+      console.error('Event.tags is not an array:', typeof event.tags);
+      return null;
+    }
     // Safety check for malformed events
     if (!event || !event.tags || !Array.isArray(event.tags)) {
       return null;
@@ -61,6 +74,14 @@ export function parseListingEvent(event: NostrEvent): ListingData | null {
     const publishedAt = getTag('published_at');
 
     if (!id || !title || !priceTag || !location) {
+      console.warn('Listing missing required fields:', {
+        id: !!id,
+        title: !!title,
+        priceTag: !!priceTag,
+        location: !!location,
+        eventId: event.id,
+        tags: event.tags.slice(0, 5)
+      });
       return null;
     }
 
