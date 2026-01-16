@@ -2,7 +2,6 @@ import { useQuery } from '@tanstack/react-query';
 import { useNostr } from '@nostrify/react';
 import { parseListingEvent, type ListingData } from '@/types/marketplace';
 import { useLocationFilter, isListingInLocation } from './useLocationFilter';
-import { useLocationFilter, isListingInLocation } from './useLocationFilter';
 
 export interface ListingsFilters {
   category?: string;
@@ -15,8 +14,8 @@ export interface ListingsFilters {
 }
 
 export function useListings(filters: ListingsFilters = {}) {
-  const { selectedLocation } = useLocationFilter();
   const { nostr } = useNostr();
+  const { selectedLocation } = useLocationFilter();
 
   return useQuery({
     queryKey: ['listings', filters],
@@ -44,24 +43,24 @@ export function useListings(filters: ListingsFilters = {}) {
       // Parse events into listings
       let listings: ListingData[] = events
         .map(parseListingEvent)
-      // Debug: log listings before filter
-      console.log('Total listings before location filter:', listings.length);
-      console.log('Selected location:', selectedLocation);
+        .map(parseListingEvent)
+        .filter((listing): listing is ListingData => listing !== null);
+      console.log('[DEBUG] Total listings:', listings.length);
+      console.log('[DEBUG] Selected location:', selectedLocation);
       if (listings.length > 0) {
-        console.log('Sample listing locations:', listings.slice(0, 5).map(l => ({
+        console.log('[DEBUG] First 3 listings:', listings.slice(0, 3).map(l => ({
           title: l.title,
           location: l.location,
           currency: l.currency
         })));
       }
-      // Filter by selected location
       listings = listings.filter((l) =>
         isListingInLocation(l.location, l.currency, selectedLocation)
       );
 
-      console.log('Listings after location filter:', listings.length);
       // Apply client-side filters
       if (filters.status) {
+      console.log('[DEBUG] After location filter:', listings.length);
         listings = listings.filter((l) => l.status === filters.status);
       }
 
