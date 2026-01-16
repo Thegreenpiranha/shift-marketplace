@@ -46,6 +46,10 @@ export const CATEGORIES = [
 
 export function parseListingEvent(event: NostrEvent): ListingData | null {
   try {
+    // Safety check for malformed events
+    if (!event || !event.tags || !Array.isArray(event.tags)) {
+      return null;
+    }
     const getTag = (name: string) => event.tags.find(([t]) => t === name)?.[1];
     const getAllTags = (name: string) => event.tags.filter(([t]) => t === name).map(([, v]) => v);
 
