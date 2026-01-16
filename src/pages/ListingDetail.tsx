@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Header } from '@/components/Header';
-import { Header } from '@/components/Header';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, MapPin, Star, ShieldCheck, MessageCircle, Calendar, Zap } from 'lucide-react';
+import { ArrowLeft, MapPin, Star, ShieldCheck, MessageCircle, Calendar, Zap, Star as StarIcon, Star as StarIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { ReviewModal } from '@/components/ReviewModal';
+import { ReviewModal } from '@/components/ReviewModal';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -33,6 +34,7 @@ export default function ListingDetail() {
   const [selectedImage, setSelectedImage] = useState(0);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [currentPayment, setCurrentPayment] = useState<Payment | null>(null);
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
 
   const { mutate: createInvoice, isPending: isCreatingInvoice } = useCreateInvoice();
   const { data: existingPayment } = usePaymentByListing(listingId);
@@ -111,6 +113,18 @@ export default function ListingDetail() {
             </div>
           </div>
         </div>
+
+      {/* Review Modal */}
+      {listing && (
+        <ReviewModal
+          open={isReviewModalOpen}
+          onOpenChange={setIsReviewModalOpen}
+          sellerPubkey={listing.sellerPubkey}
+          sellerName={sellerName}
+          listingId={listing.id}
+          listingTitle={listing.title}
+        />
+      )}
       </div>
     );
   }
@@ -124,6 +138,18 @@ export default function ListingDetail() {
             <Button>Back to Home</Button>
           </Link>
         </div>
+
+      {/* Review Modal */}
+      {listing && (
+        <ReviewModal
+          open={isReviewModalOpen}
+          onOpenChange={setIsReviewModalOpen}
+          sellerPubkey={listing.sellerPubkey}
+          sellerName={sellerName}
+          listingId={listing.id}
+          listingTitle={listing.title}
+        />
+      )}
       </div>
     );
   }
@@ -312,6 +338,15 @@ export default function ListingDetail() {
                         Contact Seller
                       </Button>
                     </Link>
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      size="lg"
+                      onClick={() => setIsReviewModalOpen(true)}
+                    >
+                      <StarIcon className="h-5 w-5 mr-2" />
+                      Leave a Review
+                    </Button>
                     <div className="relative my-4">
                       <div className="absolute inset-0 flex items-center">
                         <span className="w-full border-t" />
@@ -444,6 +479,18 @@ export default function ListingDetail() {
             itemTitle={listing.title}
           />
         )}
+
+      {/* Review Modal */}
+      {listing && (
+        <ReviewModal
+          open={isReviewModalOpen}
+          onOpenChange={setIsReviewModalOpen}
+          sellerPubkey={listing.sellerPubkey}
+          sellerName={sellerName}
+          listingId={listing.id}
+          listingTitle={listing.title}
+        />
+      )}
       </div>
     </div>
   );
