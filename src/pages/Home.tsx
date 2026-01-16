@@ -56,10 +56,10 @@ export default function Home() {
       <section className="py-20 px-4 bg-gradient-to-b from-blue-50 to-background dark:from-blue-950/20">
         <div className="container mx-auto max-w-4xl text-center">
           <h2 className="text-5xl font-bold mb-6">
-            Buy and Sell in the UK.
+            Buy and Sell.
             <br />
             <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Powered by Bitcoin.
+              Powered by Nostr & Sats.
             </span>
           </h2>
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
