@@ -86,7 +86,8 @@ export function parseListingEvent(event: NostrEvent): ListingData | null {
     }
 
     const [, priceStr, currency] = priceTag;
-    const price = parseFloat(priceStr);
+    const cleanPriceStr = priceStr.replace(/[,£$€]/g, "");
+    const price = parseFloat(cleanPriceStr);
 
     if (isNaN(price)) {
       return null;
