@@ -65,8 +65,7 @@ export function parseListingEvent(event: NostrEvent): ListingData | null {
     }
     const getTag = (name: string) => event.tags.find(([t]) => t === name)?.[1];
     const getAllTags = (name: string) => event.tags.filter(([t]) => t === name).map(([, v]) => v);
-
-    const id = getTag('d');
+    const id = getTag('d') || event.id;
     const title = getTag('title');
     const priceTag = event.tags.find(([t]) => t === 'price');
     const location = getTag('location');
