@@ -24,16 +24,7 @@ export default function Home() {
   // Get recent listings instead of featured
   const { data: recentListings, isLoading } = useListings({ limit: 8 });
   
-  // Prioritize UK listings
-  const ukListings = recentListings?.filter(l => 
-    l.currency === "GBP" || 
-    l.location?.toLowerCase().includes("uk") || 
-    l.location?.toLowerCase().includes("united kingdom") ||
-    l.location?.toLowerCase().includes("england") ||
-    l.location?.toLowerCase().includes("scotland") ||
-    l.location?.toLowerCase().includes("wales")
-  );
-  const displayListings = ukListings && ukListings.length > 0 ? ukListings : recentListings;
+  const displayListings = recentListings;
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
