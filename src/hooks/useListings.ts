@@ -43,7 +43,6 @@ export function useListings(filters: ListingsFilters = {}) {
       // Parse events into listings
       let listings: ListingData[] = events
         .map(parseListingEvent)
-        .map(parseListingEvent)
         .filter((listing): listing is ListingData => listing !== null);
       console.log('[DEBUG] Total listings:', listings.length);
       console.log('[DEBUG] Selected location:', selectedLocation);
