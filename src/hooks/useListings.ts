@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useNostr } from '@nostrify/react';
 import { parseListingEvent, type ListingData } from '@/types/marketplace';
+import { useLocationFilter, isListingInLocation } from './useLocationFilter';
 
 export interface ListingsFilters {
   category?: string;
@@ -14,6 +15,7 @@ export interface ListingsFilters {
 
 export function useListings(filters: ListingsFilters = {}) {
   const { nostr } = useNostr();
+  const { selectedLocation } = useLocationFilter();
 
   return useQuery({
     queryKey: ['listings', filters],
@@ -41,22 +43,10 @@ export function useListings(filters: ListingsFilters = {}) {
       // Parse events into listings
       let listings: ListingData[] = events
         .map(parseListingEvent)
-        .filter((listing): listing is ListingData => listing !== null);
-      
-      // Filter to UK-based listings by default (unless location filter specified)
-        const isUKListing = (l: ListingData) => {
-          const loc = l.location?.toLowerCase() || "";
-          return (
-            l.currency === "GBP" ||
-            loc.includes("uk") ||
-            loc.includes("united kingdom") ||
-            loc.includes("england") ||
-            loc.includes("scotland") ||
-            loc.includes("wales") ||
-            loc.includes("northern ireland")
-          );
-        };
-        listings = listings.filter(isUKListing);
+      // Filter by selected location
+      listings = listings.filter((l) =>
+        isListingInLocation(l.location, l.currency, selectedLocation)
+      );
 
       // Apply client-side filters
       if (filters.status) {

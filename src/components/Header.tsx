@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Menu, Heart } from 'lucide-react';
+import { LocationSelector } from './LocationSelector';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
@@ -18,6 +19,7 @@ export function Header() {
           </Link>
 
           {/* Desktop Nav */}
+            <LocationSelector />
           <nav className="hidden md:flex items-center gap-4">
             {user ? (
               <>
@@ -57,6 +59,9 @@ export function Header() {
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="right">
+                    <div className="mb-4">
+                      <LocationSelector />
+                    </div>
                   <nav className="flex flex-col gap-4 mt-8">
                     <Link to="/my-listings" className="w-full">
                       <Button variant="ghost" className="w-full justify-start">My Listings</Button>
